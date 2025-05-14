@@ -57,7 +57,7 @@ def add_security_headers(response):
     
     # Política de seguridad de contenido que permite recursos necesarios para OAuth y Replit
     # Versión mejorada que incluye más orígenes para Google OAuth y cookies
-    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com https://apis.google.com https://*.gstatic.com https://*.replit.com https://*.replit.dev; style-src 'self' 'unsafe-inline' https://*.gstatic.com; img-src 'self' data: https://*.googleusercontent.com https://*.gstatic.com; font-src 'self' data:; connect-src 'self' https://accounts.google.com https://*.googleapis.com https://*.replit.com https://*.replit.dev; frame-src 'self' https://accounts.google.com"
+    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com https://apis.google.com https://*.gstatic.com https://*.replit.com https://replit.com https://*.replit.dev; style-src 'self' 'unsafe-inline' https://*.gstatic.com; img-src 'self' data: https://*.googleusercontent.com https://*.gstatic.com; font-src 'self' data:; connect-src 'self' https://accounts.google.com https://*.googleapis.com https://*.replit.com https://replit.com https://*.replit.dev; frame-src 'self' https://accounts.google.com"
     
     # Prevenir sniffing de tipos MIME
     response.headers['X-Content-Type-Options'] = 'nosniff'
