@@ -1,0 +1,48 @@
+[
+  {
+    "id": 1,
+    "nombre": "Juan",
+    "apellido": "P\u00e9rez",
+    "email": "juan@email.com",
+    "fecha_nacimiento": "1990-01-01",
+    "password_hash": "scrypt:32768:8:1$oujE31LUkAy4Fsec$5a8c48761a160779fbc4610ec9bd4bd97e7d7ac4e325d75ef525da6886961ee69977393ccf43465fb9d6e15ea8a9eb5f7c55c2a52fd794ab4bc3ae5a06d87a6c"
+  },
+  {
+    "id": 2,
+    "nombre": "Rodrigo",
+    "apellido": "Lagos",
+    "email": "rddev2278@gmail.com",
+    "fecha_nacimiento": "2025-05-20",
+    "password_hash": "scrypt:32768:8:1$ejNZiziSsjMnVugc$bd2bd095a30d16b9e466009079057e6ae1dae6fdcaa01ffdfc5b558d61b648711119bf50347cfa7a507752c701966ee9fed6b275107e95f4c48edca17deaeba7"
+  },
+  {
+    "id": 3,
+    "nombre": "Test",
+    "apellido": "Google",
+    "email": "test.google@gmail.com",
+    "fecha_nacimiento": "",
+    "password_hash": "scrypt:32768:8:1$VR2Jt29yuj1AGAvi$9473b7740222c7d3017b7de06a240d3a879a7e48e70b728d432ed145a52ccfd20ccd0d49cfb47eeff4eba15463b266552d46f09d18e4084515e8f65f3a792e83",
+    "google_id": "",
+    "is_google_user": true
+  },
+  {
+    "id": 4,
+    "nombre": "Usuario",
+    "apellido": "Google",
+    "email": "usuario.google@gmail.com",
+    "fecha_nacimiento": "",
+    "password_hash": "scrypt:32768:8:1$Sh78LJX9kJ0RCVAv$e097d13ceda3a93e4f2c329423270f4f23ddfb300c0d6371ee76f2482d49b8f90877138734f7353915a26fc9fac71bb20679ea1f02316708f074ef7191e6aa85",
+    "google_id": "google-4iafenxnyv2",
+    "is_google_user": true
+  },
+  {
+    "id": 5,
+    "nombre": "CronApp",
+    "apellido": "",
+    "email": "cronapp.team.2025@gmail.com",
+    "fecha_nacimiento": "",
+    "password_hash": "scrypt:32768:8:1$aaGjJ0rd36s2wKEP$d620b8b5ba67d988e9a203efa79ae81bc3cc22417cd03b4855a7436706222a63194a15d8ca451990a5befc0dfd21f1ad55daa72f23086b90cc2e934b4abf176b",
+    "google_id": "116465924644196360986",
+    "is_google_user": true
+  }
+]

@@ -1,0 +1,90 @@
+Analizar toda la estructura del proyecto nuevo (archivos, directorios, dependencias y flujos) para entender su funcionamiento actual antes de implementar correcciones.
+
+Instrucciones Detalladas:
+1. Análisis de la Estructura (Paso 1):
+Revisar recursivamente todos los directorios y archivos, incluyendo:
+
+app/ (backend Flask): Rutas, modelos, configuraciones.
+
+templates/ (frontend HTML/Jinja2): Formularios, scripts inline.
+
+static/ (CSS/JS/IMG): Uso de localStorage, cookies, llamadas API.
+
+migrations/ (si existe): Control de versiones de la base de datos.
+
+Archivos de configuración: .env, config.py, requirements.txt.
+
+2. Identificar Puntos Clave (Paso 2):
+Entry points: Archivo principal (ej: main.py o app.py).
+
+Conexión a MySQL: Credenciales, uso de ORM (SQLAlchemy/raw queries).
+
+Manejo de sesiones: Uso de flask.session, JWT, o cookies personalizadas.
+
+Rutas críticas: /login, /register, /dashboard, /settings.
+
+3. Mapear Dependencias (Paso 3):
+Revisar requirements.txt o pipfile para identificar:
+
+Librerías de seguridad (ej: bcrypt, Flask-WTF, bleach).
+
+Versiones vulnerables (usar safety check o npm audit si aplica).
+
+4. Buscar Patrones de Riesgo (Paso 4):
+Frontend:
+
+Uso de innerHTML, eval(), o scripts no sanitizados.
+
+Almacenamiento de tokens en localStorage o variables globales.
+
+Backend:
+
+Queries SQL concatenadas (sin prepared statements).
+
+Claves secretas hardcodeadas (ej: app.secret_key = "password123").
+
+5. Entender el Workflow de Replit (Paso 5):
+¿Cómo se inicia la app? (comando en .replit: python main.py).
+
+Variables de entorno: ¿Dónde se definen? (Replit Secrets vs .env).
+
+Puertos expuestos: Verificar que no haya servicios innecesarios (ej: MySQL en puerto público).
+
+Estructura de Respuesta Esperada:
+[PASO 1] Analizando estructura de carpetas...  
+  - Directorios clave:  
+    * app/controllers (lógica de rutas)  
+    * app/models (clases de MySQL)  
+    * static/js/auth.js (manejo de tokens). ✅  
+
+[PASO 2] Entry points identificados:  
+  - main.py (inicia Flask en puerto 3000).  
+  - Configuración MySQL: app/models/db.py (usuario: root, sin contraseña). 🚨  
+
+[PASO 3] Dependencias críticas:  
+  - Flask==2.0.1 (vulnerabilidad CVE-2023-1234). 🚨  
+  - No se encontró bcrypt (contraseñas en texto plano). 🚨  
+
+[PASO 4] Patrones de riesgo:  
+  - Frontend: localStorage.setItem("token", token) en static/js/auth.js. 🚨  
+  - Backend: query = f"SELECT * FROM users WHERE id = {user_id}" en controllers/user.py. 🚨  
+
+[PASO 5] Workflow de Replit:  
+  - Comando: python main.py (debug=True en producción). 🚨  
+  - Puerto 3000 expuesto (sin firewall).  
+
+[CONCLUSIÓN] Proyecto necesita 5 correcciones urgentes antes de implementar features. ⚠️  
+Reglas Estrictas:
+No asumir funcionalidades: Si un archivo no se entiende, preguntar antes de actuar.
+
+Priorizar orden lógico: Ej: No corregir frontend sin antes asegurar el backend.
+
+Generar un reporte resumido con:
+
+Número de archivos revisados.
+
+Vulnerabilidades críticas/medias/leves.
+
+Dependencias obsoletas.
+
+¡No avanzar a la implementación hasta tener un entendimiento completo del proyecto! 🕵️
