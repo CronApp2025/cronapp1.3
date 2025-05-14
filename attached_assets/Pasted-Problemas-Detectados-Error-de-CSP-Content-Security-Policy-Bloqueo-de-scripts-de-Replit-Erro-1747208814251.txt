@@ -1,0 +1,77 @@
+Problemas Detectados:
+Error de CSP (Content Security Policy): Bloqueo de scripts de Replit.
+
+Errores 401 en /api/auth/validate y /api/auth/logout: Token inválido o no enviado.
+
+Fallo en el flujo de autenticación: El token no persiste o no se valida correctamente.
+
+Instrucciones para la IA:
+1. Corregir la Política de Seguridad (CSP):
+Acción: Modificar los headers de CSP en Flask para permitir scripts de Replit.
+
+python
+# En tu configuración de Flask:  
+@app.after_request  
+def add_csp(response):  
+    csp = "script-src 'self' 'unsafe-inline' https://replit.com https://*.gstatic.com https://apis.google.com"  
+    response.headers["Content-Security-Policy"] = csp  
+    return response  
+2. Validar el Token en Cada Petición:
+Acción:
+
+Asegurar que el frontend incluya el token en el header Authorization: Bearer <token>.
+
+Si usas cookies, verificar que sean HttpOnly, Secure y SameSite=Strict.
+
+En el backend, crear un middleware que verifique el token antes de procesar rutas como /api/auth/validate o /logout.
+
+3. Asegurar el Flujo de Login/Logout:
+Login exitoso:
+
+El backend debe devolver el token y guardarlo en una cookie segura.
+
+Frontend: Redirigir al dashboard solo tras confirmar que validate retorna 200 OK.
+
+Logout:
+
+Backend: Invalidar el token (ej: lista negra en Redis o base de datos).
+
+Frontend: Borrar cookies/token y recargar la página (window.location.reload()).
+
+4. Debuggear Paso a Paso:
+Paso 1: Verificar que el token se almacena correctamente tras el login (cookies o localStorage).
+
+Paso 2: Usar Postman/curl para probar /api/auth/validate manualmente:
+
+bash
+curl -H "Authorization: Bearer TU_TOKEN" https://TU_URL/api/auth/validate  
+Paso 3: Revisar logs del backend para ver por qué falla validate (token expirado, firma incorrecta, etc).
+
+Posibles Causas y Soluciones:
+🗲 Error 401 en /validate:
+
+El token no se envía (revisar headers en el frontend).
+
+El secreto de JWT no coincide entre frontend/backend (verificar variables de entorno).
+
+🗲 Error 401 en /logout:
+
+El middleware de autenticación bloquea la petición por falta de token (¿rutas públicas mal configuradas?).
+
+🗲 Scripts de Replit bloqueados:
+
+Añadir https://replit.com a script-src en CSP.
+
+Estructura de Respuesta Esperada:
+[CSP] Actualizando política de seguridad...  
+  - Dominio añadido: https://replit.com ✅  
+  - Test: Script de Replit cargado sin errores. ✅  
+
+[TOKEN] Validando flujo de autenticación...  
+  - Login exitoso → Token almacenado en cookie HttpOnly. ✅  
+  - GET /api/auth/validate → 200 OK (token válido). ✅  
+  - POST /logout → Token invalidado en backend. ✅  
+  - GET /api/auth/validate → 401 (post-logout). ✅  
+
+[CONCLUSIÓN] Errores 401 y CSP resueltos. Flujo de auth funcional. 🔒  
+¡No parar hasta que todas las peticiones devuelvan los códigos HTTP correctos!

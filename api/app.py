@@ -52,8 +52,8 @@ def add_security_headers(response):
     # Forzar HTTPS
     response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
     
-    # Política de seguridad de contenido que permite recursos necesarios para OAuth
-    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com https://apis.google.com https://*.gstatic.com; style-src 'self' 'unsafe-inline' https://*.gstatic.com; img-src 'self' data: https://*.googleusercontent.com https://*.gstatic.com; font-src 'self' data:; connect-src 'self' https://accounts.google.com https://*.replit.dev"
+    # Política de seguridad de contenido que permite recursos necesarios para OAuth y Replit
+    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com https://apis.google.com https://*.gstatic.com https://replit.com; style-src 'self' 'unsafe-inline' https://*.gstatic.com; img-src 'self' data: https://*.googleusercontent.com https://*.gstatic.com; font-src 'self' data:; connect-src 'self' https://accounts.google.com https://*.replit.dev"
     
     # Prevenir sniffing de tipos MIME
     response.headers['X-Content-Type-Options'] = 'nosniff'

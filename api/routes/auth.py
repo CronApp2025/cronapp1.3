@@ -9,7 +9,7 @@ from helper.database import get_db_cursor, fetch_one_dict_from_result
 from database.procedures import *
 from helper.response_utils import success_response, error_response
 from helper.transaction import db_transaction
-from flask_jwt_extended import get_jwt
+from flask_jwt_extended import get_jwt, verify_jwt_in_request
 from helper.token_manager import token_manager
 
 auth = Blueprint('auth', __name__)
@@ -336,7 +336,6 @@ def google_auth():
         return error_response(f"Error en la autenticación con Google: {str(e)}")
 
 @auth.route('/logout', methods=['POST'])
-@jwt_required_custom(optional=True)
 def logout():
     """
     Endpoint para cerrar sesión del usuario.
@@ -359,14 +358,20 @@ def logout():
         logout_all = data.get('all', False)  # Bandera para cerrar todas las sesiones
         
         try:
-            # Intentar obtener token actual (podría fallar si no hay token)
-            jwt_data = get_jwt()
+            # Verificar si hay un JWT y extraer sus datos
+            verify_jwt_in_request(optional=True)
+            try:
+                jwt_data = get_jwt()
+            except Exception as jwt_err:
+                print(f"No hay token JWT válido: {str(jwt_err)}")
+                jwt_data = None
+            
             if jwt_data:
                 token_user_id = jwt_data.get('sub')
                 token_session_id = jwt_data.get('session_id')
                 
                 # Si tenemos un session_id del token, invalidarlo
-                if token_session_id:
+                if token_session_id and token_user_id:
                     # Invalidar la sesión (esto invalida automáticamente todos los tokens asociados)
                     token_manager.revoke_session(str(token_user_id), token_session_id)
                     print(f"Sesión {token_session_id} revocada durante logout")
@@ -397,7 +402,11 @@ def logout():
         return resp
     except Exception as e:
         print(f"Error en logout: {str(e)}")
-        return error_response(f"Error en logout: {str(e)}")
+        # Siempre devolvemos éxito en logout, incluso si hay error
+        # Esto asegura que el cliente pueda completar el proceso
+        resp = success_response("Logout procesado")
+        unset_jwt_cookies(resp)
+        return resp
 
 @auth.route('/validate', methods=['GET', 'POST'])
 @jwt_required_custom()
