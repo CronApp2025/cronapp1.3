@@ -11,6 +11,7 @@ from routes.usuario import usuarios
 from routes.recover_password import recover_password
 from routes.register import register
 from routes.settings import settings
+from google_auth import google_auth
 from functools import wraps
 # Configurar logging
 logging.basicConfig(
@@ -51,8 +52,8 @@ def add_security_headers(response):
     # Forzar HTTPS
     response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
     
-    # Política de seguridad de contenido estricta
-    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'"
+    # Política de seguridad de contenido que permite recursos necesarios para OAuth
+    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com https://replit.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.gstatic.com; font-src 'self'; connect-src 'self' https://*.replit.dev"
     
     # Prevenir sniffing de tipos MIME
     response.headers['X-Content-Type-Options'] = 'nosniff'
@@ -93,8 +94,8 @@ app.config['JWT_REFRESH_COOKIE_PATH'] = "/api/auth/refresh"
 app.config['JWT_CSRF_IN_COOKIES'] = True  # Almacenar tokens CSRF en cookies
 app.config['JWT_COOKIE_DOMAIN'] = None  # No permitir dominios cruzados
 
-# Incluir mínima información en el token
-app.config['JWT_IDENTITY_CLAIM'] = 'user_id'
+# Usar 'sub' como claim de identidad para ser compatible con OAuth 2.0
+app.config['JWT_IDENTITY_CLAIM'] = 'sub'
 
 jwt = JWTManager(app)
 
@@ -123,30 +124,47 @@ def user_identity_lookup(identity):
 def user_lookup_callback(_jwt_header, jwt_payload):
     """
     Busca al usuario basado en el payload del token
+    
+    Este callback se ejecuta después de verificar la firma del token,
+    pero antes de que se considere completamente autenticado.
+    
+    Si devuelve None, la autenticación fallará con un 401.
     """
-    # Obtener user_id del token
+    # El campo 'sub' contiene el ID del usuario según estándar OAuth 2.0
     user_id = jwt_payload.get("sub")
     session_id = jwt_payload.get("session_id")
     
     print(f"Validando usuario: {user_id} con sesión: {session_id}")
     
-    # Si no hay session_id, algo está mal
+    # Validaciones básicas
+    if not user_id:
+        print(f"Error: Token sin user_id (sub)")
+        return None
+        
     if not session_id:
         print(f"Error: Token sin session_id para usuario {user_id}")
         return None
     
     try:
+        # Asegurar que ambos valores sean strings
+        user_id_str = str(user_id)
+        session_id_str = str(session_id)
+        
         # Verificar sesión aquí
-        if not token_manager.validate_session(str(user_id), str(session_id)):
+        if not token_manager.validate_session(user_id_str, session_id_str):
             # Si la sesión no es válida, devolver None para causar error de autenticación
             print(f"Error: Sesión {session_id} inválida para usuario {user_id}")
             return None
         
         print(f"Sesión {session_id} validada para usuario {user_id}")
         
-        # Aquí podrías buscar al usuario en la base de datos
-        # En este caso solo devolvemos el ID ya que no necesitamos más para verificar
-        return {"id": user_id, "session_id": session_id}
+        # Recuperar más datos del usuario si es necesario
+        # En este caso devolvemos un objeto con ID y session_id mínimo
+        return {
+            "id": user_id_str, 
+            "session_id": session_id_str,
+            # Puedes agregar más datos del usuario aquí si los necesitas
+        }
     except Exception as e:
         print(f"Error al validar usuario: {str(e)}")
         return None

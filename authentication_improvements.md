@@ -1,64 +1,134 @@
-# Authentication System Improvements
+# Sistema de Autenticación Persistente
 
-## Summary
-This document details the improvements made to the authentication system to enhance security and fix issues related to the migration from PostgreSQL to MySQL.
+## Características implementadas
 
-## Fixed Issues
+El sistema de autenticación persistente implementado en CronApp 2.0 ofrece las siguientes características:
 
-### Database Migration
-- Successfully migrated authentication-related database access from PostgreSQL to MySQL
-- Updated all SQL queries to be compatible with MySQL syntax
-- Ensured proper connection handling and transaction management
+1. **Sesiones persistentes**: 
+   - Los usuarios permanecen autenticados incluso después de cerrar el navegador o la pestaña.
+   - Cada sesión tiene un identificador único (session_id) para control y revocación.
 
-### User ID Handling in JWT Tokens
-- Fixed "Subject must be a string" error in JWT token generation
-- Added explicit conversion of user IDs to strings before token creation:
-  ```python
-  user_id_str = str(user_data['id'])
-  access_token = build_token(user_id=user_id_str, ...)
-  refresh_token = create_refresh_token(identity=user_id_str)
-  ```
+2. **Seguridad mejorada**:
+   - Tokens JWT almacenados exclusivamente en cookies HTTP-only.
+   - Protección CSRF integrada para todas las solicitudes que modifican datos.
+   - Sin almacenamiento de tokens en localStorage/sessionStorage (previene XSS).
 
-### Password Recovery Flow
-- Fixed token validation and database storage
-- Added comprehensive validation of password reset tokens
-- Implemented secure token storage in database with proper expiration tracking
-- Improved error handling and user feedback during password reset process
+3. **Gestión de sesiones**:
+   - Posibilidad de ver las sesiones activas de un usuario.
+   - Opción para cerrar sesión en un dispositivo específico.
+   - Opción para cerrar todas las sesiones activas.
 
-### Security Enhancements
-- Implemented stronger password validation (12+ characters, uppercase, lowercase, digits, and special characters)
-- Added CSRF protection middleware
-- Configured secure cookie attributes (HttpOnly, SameSite=Strict, Secure)
-- Improved database query security to prevent SQL injection
-- Enhanced error logging for security events
+4. **Renovación automática de tokens**:
+   - Tokens de acceso de corta duración (por defecto 15 minutos).
+   - Tokens de refresco de larga duración (por defecto 7 días).
+   - Renovación automática transparente para el usuario.
+   
+5. **Revocación de tokens**:
+   - Revocación inmediata de tokens al cerrar sesión.
+   - Capacidad de revocar todas las sesiones de un usuario.
 
-## Test Results
+## Flujo de autenticación
 
-### Registration
-- Successfully tested user registration with strong password requirements
-- Validation working correctly for password complexity rules
-- User data properly stored in MySQL database
+1. **Inicio de sesión**:
+   - El usuario ingresa credenciales.
+   - El servidor valida las credenciales y genera:
+     - Un token de acceso (corta duración)
+     - Un token de refresco (larga duración)
+     - Un identificador de sesión único
+   - Los tokens se almacenan como cookies HTTP-only.
+   - Se registra la sesión activa en el servidor.
 
-### Login
-- Successfully authenticated with both original and reset passwords
-- JWT token generation working correctly with string user IDs
-- User data properly retrieved and returned in response
+2. **Solicitudes autenticadas**:
+   - El navegador envía automáticamente las cookies con cada solicitud.
+   - El servidor verifica el token de acceso y la validez de la sesión.
+   - Si es válido, se procesa la solicitud.
 
-### Password Recovery
-- Successfully generated and validated password reset tokens
-- Email delivery system working correctly (simulated in test environment)
-- Password reset successfully updates user credentials
-- Token invalidation after use functioning correctly
+3. **Renovación de tokens**:
+   - Cuando el token de acceso expira, se usa el token de refresco para obtener uno nuevo.
+   - El servidor verifica que la sesión siga activa.
+   - Se mantiene el mismo identificador de sesión.
 
-## Security Considerations
-- All passwords are properly hashed using secure algorithms
-- Tokens have appropriate expiration times
-- API endpoints have proper validation for all inputs
-- Error messages are generic to prevent information leakage
-- Rate limiting is implemented to prevent brute force attacks
+4. **Cierre de sesión**:
+   - Se eliminan las cookies del navegador.
+   - Se invalida la sesión en el servidor.
+   - Cualquier intento de usar tokens asociados a esa sesión fallará.
 
-## Remaining Work
-- Consider adding additional security headers (Content-Security-Policy, X-XSS-Protection)
-- Implement account lockout after failed login attempts
-- Add multi-factor authentication options
-- Improve logging for security audits
+## Implementación técnica
+
+- Se utiliza Flask-JWT-Extended para la generación y validación de tokens JWT.
+- Se implementó un `TokenManager` para la gestión de sesiones activas e invalidadas.
+- Las cookies JWT tienen configurados los atributos de seguridad:
+  - `HttpOnly`: Evita acceso desde JavaScript
+  - `Secure` (en producción): Solo se envían por HTTPS
+  - `SameSite=Strict`: Protección adicional contra CSRF
+
+## Ventajas sobre la implementación anterior
+
+1. Persistencia real: El token de refresco permite mantener la sesión activa durante días.
+2. Mejor seguridad: No hay exposición de tokens en localStorage (vulnerable a XSS).
+3. Mejor experiencia: El usuario no necesita iniciar sesión repetidamente.
+4. Control granular: Capacidad de gestionar sesiones específicas.
+
+## Ejemplos de uso
+
+### Inicio de sesión
+```javascript
+// Frontend (ejemplo simplificado)
+const login = async (email, password) => {
+  const response = await fetch('/api/auth/login', {
+    method: 'POST',
+    credentials: 'include',  // Importante para enviar/recibir cookies
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+  });
+  
+  return await response.json();
+};
+```
+
+### Validación de sesión
+```javascript
+// Frontend (ejemplo simplificado)
+const validateSession = async () => {
+  try {
+    const response = await fetch('/api/auth/validate', {
+      credentials: 'include',  // Importante para enviar cookies
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      return data.data.user;
+    }
+    return null;
+  } catch (error) {
+    return null;
+  }
+};
+```
+
+### Cierre de sesión
+```javascript
+// Frontend (ejemplo simplificado)
+const logout = async (sessionId) => {
+  const response = await fetch('/api/auth/logout', {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ session_id: sessionId })
+  });
+  
+  return await response.json();
+};
+```
+
+## Pruebas
+
+Se ha incluido un script de prueba `test_auth.sh` que verifica:
+1. Login exitoso
+2. Validación de token
+3. Refresco de token
+4. Logout y revocación de sesión
+
+## Configuración
+
+La duración de los tokens y otras opciones de seguridad se configuran en `api/config.py`.

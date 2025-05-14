@@ -52,7 +52,14 @@ fi
 
 # Paso 3: Probar refresh token
 echo -e "\n${YELLOW}3. Refrescando token...${NC}"
-REFRESH_RESPONSE=$(curl -s -b cookie.txt -c cookie.txt -X POST $API_URL/api/auth/refresh)
+
+# Extraer el CSRF token de la cookie
+CSRF_TOKEN=$(grep csrf_refresh_token cookie.txt | awk '{print $7}')
+echo "Usando CSRF token: $CSRF_TOKEN"
+
+# Ejecutar refresh con el token CSRF
+REFRESH_RESPONSE=$(curl -s -b cookie.txt -c cookie.txt -X POST $API_URL/api/auth/refresh \
+  -H "X-CSRF-TOKEN: $CSRF_TOKEN")
 
 # Comprobar si hay error en el refresh
 if echo "$REFRESH_RESPONSE" | grep -q "error"; then
