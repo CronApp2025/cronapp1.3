@@ -142,6 +142,11 @@ def callback():
             user_id = fetch_one_dict_from_result(cursor)["id"]
 
     # Generar tokens y establecer cookies
+    from flask_jwt_extended import set_access_cookies, set_refresh_cookies, create_refresh_token
+    from config import EXPIRE_TOKEN_TIME
+    from datetime import timedelta
+    
+    # Generar tokens y obtener el session_id
     access_token, session_id = build_token(
         user_id,
         additional_claims={
@@ -151,20 +156,25 @@ def callback():
             "auth_method": "google"
         }
     )
-
-    # Preparar respuesta
-    user_data = {
-        "id": user_id,
-        "nombre": user_name,
-        "apellido": user_last_name,
-        "email": user_email,
-        "session_id": session_id
-    }
-
-    # Redirigir a la página principal con un parámetro que indique login exitoso
-    # Asumimos que la página principal está servida por Vite en modo desarrollo
-    if os.environ.get("FLASK_ENV") == "development":
-        return redirect("http://localhost:5173/?login_success=true")
-    else:
-        # En producción, redirigimos a la ruta raíz
-        return redirect("/?login_success=true")
+    
+    # Generar token de refresco
+    refresh_token = create_refresh_token(
+        identity=user_id,
+        additional_claims={
+            'session_id': session_id  # Incluir session_id en el token de refresco
+        },
+        expires_delta=timedelta(days=EXPIRE_TOKEN_TIME["REFRESH_TOKEN_DAYS"])
+    )
+    
+    # Almacenar el token de refresco
+    token_manager.store_refresh_token(str(user_id), refresh_token, session_id)
+    
+    # Preparar respuesta con redirección
+    resp = redirect("/")  # Redirigimos a la página principal
+    
+    # Configurar cookies seguras con los tokens
+    set_access_cookies(resp, access_token)
+    set_refresh_cookies(resp, refresh_token)
+    
+    # Añadir parámetro para indicar login exitoso
+    return resp
