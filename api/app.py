@@ -5,7 +5,7 @@ from flask_mail import Mail
 from datetime import timedelta
 import os
 import logging
-from config import EXPIRE_TOKEN_TIME
+from config import EXPIRE_TOKEN_TIME, JWT_COOKIE_SECURE, JWT_COOKIE_SAMESITE, JWT_COOKIE_CSRF_PROTECT, JWT_TOKEN_LOCATION
 from routes.auth import auth
 from routes.usuario import usuarios
 from routes.recover_password import recover_password
@@ -74,20 +74,68 @@ def add_security_headers(response):
 # Configuración de claves secretas - Usar claves robustas y aleatorias
 # FIX: Usar valores secretos robustos y aleatorios en lugar de claves predecibles
 import secrets
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', secrets.token_hex(32))
-app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', secrets.token_hex(32))
+app.config['SECRET_KEY'] = os.environ.get('SESSION_SECRET', secrets.token_hex(32))
+app.config['JWT_SECRET_KEY'] = os.environ.get('SESSION_SECRET', secrets.token_hex(32))
 app.config['SECURITY_PASSWORD_SALT'] = os.environ.get('SECURITY_PASSWORD_SALT', secrets.token_hex(16))
+
 # Configuración de JWT con mejor seguridad
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=EXPIRE_TOKEN_TIME["ACCESS_TOKEN_MINUTES"])
 app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=EXPIRE_TOKEN_TIME["REFRESH_TOKEN_DAYS"])
 
-# FIX: Mejorar seguridad de cookies
-app.config['JWT_TOKEN_LOCATION'] = ['cookies', 'headers']  # Permitir tokens en cookies y headers
-app.config['JWT_COOKIE_SECURE'] = True  # Cookies solo en HTTPS
-app.config['JWT_COOKIE_CSRF_PROTECT'] = True  # Protección CSRF para cookies
-app.config['JWT_COOKIE_SAMESITE'] = 'Lax'  # SameSite para prevenir CSRF
+# FIX: Usar sólo cookies con máxima seguridad (no headers para evitar XSS)
+app.config['JWT_TOKEN_LOCATION'] = JWT_TOKEN_LOCATION  # Sólo cookies, no headers
+app.config['JWT_COOKIE_SECURE'] = JWT_COOKIE_SECURE  # Cookies solo en HTTPS
+app.config['JWT_COOKIE_CSRF_PROTECT'] = JWT_COOKIE_CSRF_PROTECT  # Protección CSRF para cookies
+app.config['JWT_COOKIE_SAMESITE'] = JWT_COOKIE_SAMESITE  # SameSite=Strict para prevenir CSRF
+app.config['JWT_COOKIE_DOMAIN'] = None  # Solo dominio actual
+app.config['JWT_ACCESS_COOKIE_PATH'] = "/"
+app.config['JWT_REFRESH_COOKIE_PATH'] = "/api/auth/refresh"
+app.config['JWT_CSRF_IN_COOKIES'] = True  # Almacenar tokens CSRF en cookies
+app.config['JWT_COOKIE_DOMAIN'] = None  # No permitir dominios cruzados
+
+# Incluir mínima información en el token
+app.config['JWT_IDENTITY_CLAIM'] = 'user_id'
 
 jwt = JWTManager(app)
+
+# Callback para verificar tokens contra la denylist
+from helper.token_manager import token_manager
+
+@jwt.token_in_blocklist_loader
+def check_if_token_revoked(jwt_header, jwt_payload):
+    """
+    Verifica si un token ha sido revocado (está en la denylist)
+    """
+    # Obtener session_id del payload
+    session_id = jwt_payload.get("session_id")
+    
+    # Verificar si el session_id está en la denylist
+    return token_manager.is_denied(session_id)
+
+@jwt.user_identity_loader
+def user_identity_lookup(identity):
+    """
+    Convierte siempre la identidad a string para consistencia
+    """
+    return str(identity)
+
+@jwt.user_lookup_loader
+def user_lookup_callback(_jwt_header, jwt_payload):
+    """
+    Busca al usuario basado en el payload del token
+    """
+    # Obtener user_id del token
+    user_id = jwt_payload.get("sub")
+    session_id = jwt_payload.get("session_id")
+    
+    # Verificar sesión aquí
+    if not token_manager.validate_session(user_id, session_id):
+        # Si la sesión no es válida, devolver None para causar error de autenticación
+        return None
+    
+    # Aquí podrías buscar al usuario en la base de datos
+    # En este caso solo devolvemos el ID ya que no necesitamos más para verificar
+    return {"id": user_id}
 
 # Configuración de Flask-Mail
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'

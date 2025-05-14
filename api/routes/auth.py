@@ -349,7 +349,6 @@ def logout():
     try:
         # Intentar obtener datos del JWT si está disponible
         jwt_data = None
-        token_jti = None
         token_user_id = None
         token_session_id = None
         
@@ -363,21 +362,14 @@ def logout():
             # Intentar obtener token actual (podría fallar si no hay token)
             jwt_data = get_jwt()
             if jwt_data:
-                token_jti = jwt_data.get('jti')
                 token_user_id = jwt_data.get('sub')
                 token_session_id = jwt_data.get('session_id')
                 
-                # Invalidar el token actual
-                if token_jti:
-                    # Obtener tiempo de expiración del token
-                    exp_timestamp = jwt_data.get('exp')
-                    exp_time = None
-                    if exp_timestamp:
-                        exp_time = datetime.fromtimestamp(exp_timestamp)
-                        
-                    # Agregar el token a la denylist (invalidación inmediata)
-                    token_manager.add_to_denylist(token_jti, exp_time)
-                    print(f"Token {token_jti} añadido a la denylist. Expira: {exp_time}")
+                # Si tenemos un session_id del token, invalidarlo
+                if token_session_id:
+                    # Invalidar la sesión (esto invalida automáticamente todos los tokens asociados)
+                    token_manager.revoke_session(str(token_user_id), token_session_id)
+                    print(f"Sesión {token_session_id} revocada durante logout")
         except Exception as e:
             # No hay un token válido, continuamos con los datos del cuerpo
             print(f"No se pudo obtener token: {str(e)}")
@@ -388,14 +380,15 @@ def logout():
         effective_session_id = token_session_id or body_session_id
         
         if effective_user_id:
-            if logout_all or not effective_session_id:
-                # Invalidar todas las sesiones del usuario
-                token_manager.invalidate_all_sessions(str(effective_user_id))
-                print(f"Todas las sesiones del usuario {effective_user_id} invalidadas")
-            elif effective_session_id:
-                # Invalidar solo la sesión específica
-                token_manager.invalidate_session(str(effective_user_id), effective_session_id)
-                print(f"Sesión {effective_session_id} del usuario {effective_user_id} invalidada")
+            if logout_all:
+                # Revocar todas las sesiones del usuario
+                count = token_manager.revoke_all_sessions(str(effective_user_id))
+                print(f"Todas las sesiones ({count}) del usuario {effective_user_id} revocadas")
+            elif effective_session_id and not token_session_id:
+                # Si ya revocamos la sesión del token, no necesitamos hacerlo de nuevo
+                # Revocar la sesión específica
+                token_manager.revoke_session(str(effective_user_id), effective_session_id)
+                print(f"Sesión {effective_session_id} del usuario {effective_user_id} revocada explícitamente")
         
         # Crear respuesta y limpiar cookies JWT
         resp = success_response("Logout exitoso")
@@ -409,15 +402,28 @@ def logout():
 @auth.route('/validate', methods=['GET', 'POST'])
 @jwt_required_custom()
 def validate_token():
+    """
+    Endpoint para validar token y obtener datos del usuario.
+    
+    Si el token es válido y la sesión está activa, devuelve los datos del usuario.
+    Si el token ha expirado o la sesión ha sido revocada, devuelve 401.
+    """
     try:
-        jwt = get_jwt()
+        jwt_data = get_jwt()
+        user_id = jwt_data.get('sub')
+        session_id = jwt_data.get('session_id')
+        
+        # Validar que la sesión siga activa
+        if not token_manager.validate_session(str(user_id), session_id):
+            print(f"Sesión {session_id} no válida para el usuario {user_id}")
+            return error_response("Sesión inválida o expirada", 401)
+            
+        print(f"Sesión {session_id} validada para el usuario {user_id}")
         
         # Recuperar los datos del usuario y enviarlos como parte de la respuesta
-        with get_db_cursor() as cursor:
-            cursor.execute(
-                "SELECT * FROM users WHERE id = %s", 
-                (jwt.get('user_id'),)
-            )
+        with get_db_cursor(dictionary=True) as cursor:
+            query = "SELECT id, nombre, apellido, email, fecha_nacimiento FROM users WHERE id = %s"
+            cursor.execute(query, (user_id,))
             user = fetch_one_dict_from_result(cursor)
         
         if not user:
@@ -425,15 +431,23 @@ def validate_token():
         
         # Formato de fecha para enviar al cliente
         if 'fecha_nacimiento' in user and user['fecha_nacimiento']:
-            user['fecha_nacimiento'] = user['fecha_nacimiento'].strftime('%Y-%m-%d')
+            if isinstance(user['fecha_nacimiento'], datetime):
+                user['fecha_nacimiento'] = user['fecha_nacimiento'].strftime('%Y-%m-%d')
         
-        # Eliminar campos sensibles
-        if 'password' in user:
-            del user['password']
+        # Incluir información de la sesión en la respuesta
+        # incluyendo tiempo restante de validez
+        session_info = None
+        sessions = token_manager.get_active_sessions(str(user_id))
+        
+        for session in sessions:
+            if session.get('session_id') == session_id:
+                session_info = session
+                break
         
         return success_response(data={
             'valid': True,
-            'user': user
+            'user': user,
+            'session': session_info
         })
     except Exception as e:
         print(f"Error validating token: {str(e)}")
