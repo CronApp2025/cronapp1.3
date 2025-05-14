@@ -15,22 +15,23 @@ def jwt_required_custom(optional=False, refresh=False):
                 if not jwt:
                     return jsonify({"msg": "Token no proporcionado"}), 401
                 
-                # Verificar si el token está en la denylist
-                if token_manager.is_denied(jwt.get('jti', '')):
-                    print(f"Token JTI {jwt.get('jti', '')} está en la denylist")
-                    return jsonify({"msg": "Token ha sido revocado"}), 401
+                # Verificar si la sesión está en la denylist (invalidada)
+                session_id = jwt.get('session_id', '')
+                if session_id and token_manager.is_denied(session_id):
+                    print(f"Sesión {session_id} ha sido revocada")
+                    return jsonify({"msg": "La sesión ha sido revocada"}), 401
                 
                 # Verificar session_id si existe en el token
                 if 'session_id' in jwt and 'sub' in jwt:
                     session_id = jwt.get('session_id')
                     user_id = jwt.get('sub')
                     
-                    # Solo validamos refresh tokens
-                    if refresh and session_id:
-                        # Verificar si el token de refresco es válido para esta sesión
-                        if not token_manager.validate_refresh_token(str(user_id), jwt.get('refresh_token', ''), session_id):
+                    # Solo validamos la sesión para todos los tokens
+                    if session_id:
+                        # Verificar si la sesión está activa para este usuario
+                        if not token_manager.validate_session(str(user_id), session_id):
                             print(f"Sesión {session_id} inválida para usuario {user_id}")
-                            return jsonify({"msg": "Sesión inválida"}), 401
+                            return jsonify({"msg": "Sesión inválida o expirada"}), 401
                 
                 return fn(*args, **kwargs)
             except Exception as e:

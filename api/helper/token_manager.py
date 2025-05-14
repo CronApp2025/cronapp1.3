@@ -17,17 +17,25 @@ class TokenManager:
     def __new__(cls):
         with cls._lock:
             if cls._instance is None:
-                cls._instance = super().__new__(cls)
-                # Diccionario para almacenar session_id invalidados y su tiempo de expiración
-                cls._instance.denylist = {}
-                # Almacenar sesiones activas por usuario
-                cls._instance.active_sessions = {}
-                # Registro de actividad para auditoría de seguridad
-                cls._instance.activity_log = []
-                # Iniciar hilo de limpieza
-                cleanup_thread = threading.Thread(target=cls._instance._cleanup_expired_tokens, daemon=True)
-                cleanup_thread.start()
+                instance = super().__new__(cls)
+                # Inicializar la instancia pero no asignarla a _instance todavía
+                # Esto permite que __init__ sea llamado después
+                cls._instance = instance
             return cls._instance
+            
+    def __init__(self):
+        # Solo inicializar una vez
+        if not hasattr(self, 'initialized'):
+            # Diccionario para almacenar session_id invalidados y su tiempo de expiración
+            self.denylist = {}
+            # Almacenar sesiones activas por usuario
+            self.active_sessions = {}
+            # Registro de actividad para auditoría de seguridad
+            self.activity_log = []
+            self.initialized = True
+            # Iniciar hilo de limpieza
+            cleanup_thread = threading.Thread(target=self._cleanup_expired_tokens, daemon=True)
+            cleanup_thread.start()
 
     def _log_activity(self, action: str, user_id: Optional[str], session_id: Optional[str], details: Optional[Dict] = None):
         """
@@ -48,7 +56,7 @@ class TokenManager:
             
         logger.info(f"TokenManager: {action} - User: {user_id} - Session: {session_id}")
 
-    def add_to_denylist(self, session_id: str, exp_time: datetime = None, user_id: str = None):
+    def add_to_denylist(self, session_id: str, exp_time: Optional[datetime] = None, user_id: Optional[str] = None):
         """
         Añade un session_id a la denylist para invalidarlo inmediatamente
         
@@ -64,7 +72,7 @@ class TokenManager:
             return False
             
         # Si no se proporciona tiempo de expiración, usar el máximo posible
-        if not exp_time:
+        if exp_time is None:
             # Usar el mayor tiempo entre access_token y refresh_token
             days = EXPIRE_TOKEN_TIME["REFRESH_TOKEN_DAYS"]
             minutes = EXPIRE_TOKEN_TIME["ACCESS_TOKEN_MINUTES"]
@@ -88,10 +96,11 @@ class TokenManager:
                         del self.active_sessions[user_id]
             
             # Registrar actividad
-            self._log_activity("session_invalidated", user_id, session_id, {
-                "expires_at": exp_time.isoformat(),
+            activity_details = {
+                "expires_at": exp_time.isoformat() if exp_time else None,
                 "reason": "explicit_invalidation"
-            })
+            }
+            self._log_activity("session_invalidated", user_id, session_id, activity_details)
             
             logger.info(f"Session {session_id} added to denylist, expires at {exp_time}")
             return True
@@ -128,7 +137,7 @@ class TokenManager:
         """
         return str(uuid.uuid4())
 
-    def register_session(self, user_id: str, session_id: str = None) -> str:
+    def register_session(self, user_id: str, session_id: Optional[str] = None) -> str:
         """
         Registra una nueva sesión activa para un usuario
         
@@ -142,7 +151,8 @@ class TokenManager:
         if not user_id:
             raise ValueError("Se requiere user_id para registrar una sesión")
             
-        if not session_id:
+        # Asegurarse de que session_id sea un string y no None
+        if session_id is None:
             session_id = self.generate_session_id()
             
         # Calcular expiración (usar tiempo de refresh token)
@@ -168,7 +178,7 @@ class TokenManager:
                 
         return session_id
 
-    def validate_session(self, user_id: str, session_id: str) -> bool:
+    def validate_session(self, user_id: Optional[str], session_id: Optional[str]) -> bool:
         """
         Valida que un session_id pertenezca a un usuario y no esté invalidado
         
@@ -179,7 +189,13 @@ class TokenManager:
         Returns:
             True si la sesión es válida, False si no
         """
+        # Validaciones básicas de entrada
+        if not isinstance(user_id, str) or not isinstance(session_id, str):
+            logger.warning(f"Invalid session validation parameters: user_id={type(user_id)}, session_id={type(session_id)}")
+            return False
+            
         if not user_id or not session_id:
+            logger.warning(f"Empty session validation parameters: user_id={user_id}, session_id={session_id}")
             return False
             
         # Verificar denylist primero (más rápido)
@@ -209,7 +225,8 @@ class TokenManager:
                 logger.info(f"Session validation failed: Session {session_id} expired")
                 return False
                 
-            # Todo correcto
+            # Sesión válida y activa, registrar actividad
+            self._log_activity("session_validated", user_id, session_id)
             return True
 
     def revoke_session(self, user_id: str, session_id: str) -> bool:
@@ -231,6 +248,31 @@ class TokenManager:
         
         return success
 
+    def store_refresh_token(self, user_id: str, refresh_token: str, session_id: str) -> bool:
+        """
+        Almacena el token de refresco asociado a una sesión
+        
+        Args:
+            user_id: ID del usuario
+            refresh_token: Token de refresco (JWT)
+            session_id: ID de la sesión asociada
+            
+        Returns:
+            Boolean indicando éxito
+        """
+        if not user_id or not refresh_token or not session_id:
+            return False
+            
+        # Registrar la sesión primero (crea entradas si no existen)
+        self.register_session(user_id, session_id)
+        
+        # Log de almacenamiento de token
+        self._log_activity("refresh_token_stored", user_id, session_id, {
+            "token_type": "refresh_token"
+        })
+        
+        return True
+            
     def revoke_all_sessions(self, user_id: str) -> int:
         """
         Revoca todas las sesiones de un usuario

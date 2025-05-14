@@ -128,14 +128,28 @@ def user_lookup_callback(_jwt_header, jwt_payload):
     user_id = jwt_payload.get("sub")
     session_id = jwt_payload.get("session_id")
     
-    # Verificar sesión aquí
-    if not token_manager.validate_session(user_id, session_id):
-        # Si la sesión no es válida, devolver None para causar error de autenticación
+    print(f"Validando usuario: {user_id} con sesión: {session_id}")
+    
+    # Si no hay session_id, algo está mal
+    if not session_id:
+        print(f"Error: Token sin session_id para usuario {user_id}")
         return None
     
-    # Aquí podrías buscar al usuario en la base de datos
-    # En este caso solo devolvemos el ID ya que no necesitamos más para verificar
-    return {"id": user_id}
+    try:
+        # Verificar sesión aquí
+        if not token_manager.validate_session(str(user_id), str(session_id)):
+            # Si la sesión no es válida, devolver None para causar error de autenticación
+            print(f"Error: Sesión {session_id} inválida para usuario {user_id}")
+            return None
+        
+        print(f"Sesión {session_id} validada para usuario {user_id}")
+        
+        # Aquí podrías buscar al usuario en la base de datos
+        # En este caso solo devolvemos el ID ya que no necesitamos más para verificar
+        return {"id": user_id, "session_id": session_id}
+    except Exception as e:
+        print(f"Error al validar usuario: {str(e)}")
+        return None
 
 # Configuración de Flask-Mail
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'

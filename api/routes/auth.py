@@ -455,7 +455,7 @@ def validate_token():
 
 def build_token(user_id, additional_claims=None, expires_delta=None, session_id=None):
     """
-    Construye un token JWT con claims adicionales
+    Construye un token JWT con claims adicionales y registra la sesión asociada
     
     Args:
         user_id: ID del usuario (se convierte a string)
@@ -464,21 +464,25 @@ def build_token(user_id, additional_claims=None, expires_delta=None, session_id=
         session_id: ID de sesión único (si es None, se genera uno nuevo)
     
     Returns:
-        Token JWT firmado
+        Tupla con token JWT firmado y session_id
     """
+    # Convertir ID a string para consistencia
     user_id = str(user_id)
     
     # Generar session_id si no se proporciona
     if not session_id:
         session_id = token_manager.generate_session_id()
-        
+    
+    # Registrar o actualizar la sesión en el token manager
+    session_id = token_manager.register_session(user_id, session_id)
+    print(f"Sesión {session_id} registrada para usuario {user_id}")
+    
     # Configurar expiración predeterminada si no se especifica
     if expires_delta is None:
         expires_delta = timedelta(minutes=EXPIRE_TOKEN_TIME["ACCESS_TOKEN_MINUTES"])
     
     # Claims base
     claims = {
-        'user_id': user_id,
         'session_id': session_id  # Agregar session_id para identificar la sesión
     }
     
