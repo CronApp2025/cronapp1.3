@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Nueva paleta de colores según especificación */
+    --background: 0 0% 97%; /* #F8F9FA - Gris Claro (fondo general) */
+    --foreground: 210 11% 15%; /* #212529 - Negro Suave (texto principal) */
+
+    --card: 0 0% 100%;
+    --card-foreground: 210 11% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 11% 15%;
+
+    --primary: 211 100% 50%; /* #007BFF - Azul Principal */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 100% 95%; /* #E6F0FF - Azul Claro */
+    --secondary-foreground: 211 100% 50%;
+
+    --accent: 162 73% 46%; /* #28A745 - Verde */
+    --accent-foreground: 0 0% 100%;
+
+    --muted: 210 4% 45%; /* #6C757D - Gris Medio */
+    --muted-foreground: 0 0% 100%;
+
+    --destructive: 354 70% 54%; /* #DC3545 - Rojo */
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 210 14% 89%;
+    --input: 210 14% 89%;
+    --ring: 211 100% 50%;
+
+    --sidebar-background: 210 11% 15%; /* #212529 - Negro Suave */
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 211 100% 50%; /* #007BFF - Azul Principal */
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 95%;
+    --sidebar-accent-foreground: 210 11% 15%;
+    --sidebar-border: 210 4% 45%; /* #6C757D - Gris Medio */
+    --sidebar-ring: 211 100% 50%;
+
+    /* Gráficos y visualización de datos */
+    --chart-1: 211 100% 50%; /* #007BFF - Azul Principal */
+    --chart-2: 354 70% 54%; /* #DC3545 - Rojo */
+    --chart-3: 162 73% 46%; /* #28A745 - Verde */
+    --chart-4: 45 100% 51%; /* #FFC107 - Amarillo/Naranja */
+    --chart-5: 187 71% 40%; /* #17A2B8 - Cian */
+
+    --radius: 0.5rem;
+    
+    /* Variables específicas para indicadores de riesgo */
+    --risk-high: 354 70% 54%; /* #DC3545 - Rojo */
+    --risk-medium: 45 100% 51%; /* #FFC107 - Amarillo/Naranja */
+    --risk-low: 162 73% 46%; /* #28A745 - Verde */
+    --info: 187 71% 40%; /* #17A2B8 - Cian */
+  }
+
+  .dark {
+    --background: 210 11% 15%; /* Negro Suave */
+    --foreground: 0 0% 95%;
+
+    --card: 210 10% 23%;
+    --card-foreground: 0 0% 95%;
+
+    --popover: 210 10% 23%;
+    --popover-foreground: 0 0% 95%;
+
+    --primary: 211 100% 50%; /* #007BFF - Azul Principal */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 212 100% 18%;
+    --secondary-foreground: 0 0% 95%;
+
+    --accent: 162 73% 46%; /* #28A745 - Verde */
+    --accent-foreground: 0 0% 95%;
+
+    --muted: 210 4% 45%; /* #6C757D - Gris Medio */
+    --muted-foreground: 0 0% 75%;
+
+    --destructive: 354 70% 54%; /* #DC3545 - Rojo */
+    --destructive-foreground: 0 0% 95%;
+
+    --border: 215 27.9% 16.9%;
+    --input: 215 27.9% 16.9%;
+    --ring: 211 100% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-medium;
+  }
+}

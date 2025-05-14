@@ -1,0 +1,86 @@
+Objetivo Enfocado:
+Reparar únicamente los módulos de login, registro y recuperación de contraseña hasta que todos los procedimientos devuelvan respuestas positivas en la consola de Replit (200 OK + logs verificados). No avanzar a otros módulos hasta que estas 3 funciones estén 100% operativas y seguras.
+
+Acciones Clave (En Este Orden):
+
+Testeo en Tiempo Real (Simulación de Usuario):
+
+Ejecuta scripts de prueba que simulen:
+
+Registro: Enviar POST a /register con email válido, contraseña segura (>12 caracteres).
+
+✅ Esperar: 201 Created + usuario en MySQL + email de verificación enviado (log en consola).
+
+Login: POST a /login con credenciales del usuario creado.
+
+✅ Esperar: 200 OK + cookie de sesión segura (HttpOnly, Secure).
+
+Recuperación: POST a /recovery con email registrado.
+
+✅ Esperar: 200 OK + token temporal en MySQL + email con enlace (log en consola).
+
+Reset de Contraseña: POST a /reset-password con token válido y nueva contraseña.
+
+✅ Esperar: 200 OK + hash actualizado en MySQL + email de confirmación.
+
+Bucle de Corrección de Errores:
+
+Si algún test falla:
+
+Paso 1: Identificar el error exacto (ej: ERROR 500: Internal Server Error en /register).
+
+Paso 2: Corregir el código (ej: solucionar excepción en validación de email).
+
+Paso 3: Volver a ejecutar solo el test fallido hasta que funcione.
+
+Repetir hasta que todos los tests se ejecuten en secuencia sin errores.
+
+Verificación de Seguridad Adicional:
+
+Aunque el test funcione, revisar:
+
+¿Las contraseñas se almacenan como hash? (No permitir texto plano).
+
+¿Los tokens de recuperación expiran después de 15 minutos? (DELETE FROM tokens WHERE created_at < NOW() - INTERVAL 15 MINUTE).
+
+¿Hay logs detallados en consola? (ej: [REGISTRO] Usuario user@example.com creado | [LOGIN] Sesión iniciada desde IP 192.0.2.1).
+
+Estructura de Respuesta Obligatoria:
+
+[REGISTRO] Probando /register...  
+  - POST: email="test@example.com", password="A1@abcdefghijk"  
+  - ERROR: 500 (falta columna 'verified' en MySQL).  
+  - CORRECCIÓN: ALTER TABLE users ADD COLUMN verified BOOLEAN DEFAULT FALSE;  
+  - RETEST: ✅ 201 Created | Usuario en DB | Email enviado.  
+
+[LOGIN] Probando /login...  
+  - POST: email="test@example.com", password="A1@abcdefghijk"  
+  - ERROR: 403 (cuenta no verificada).  
+  - CORRECCIÓN: Añadir redirect a /verify-email después del registro.  
+  - RETEST: ✅ 200 OK | Cookie de sesión generada.  
+
+[RECOVERY] Probando /recovery...  
+  - POST: email="test@example.com"  
+  - ✅ 200 OK | Token almacenado | Email enviado.  
+
+[RESET] Probando /reset-password...  
+  - POST: token="abc123", new_password="B2@lmnopqrstuv"  
+  - ✅ 200 OK | Hash actualizado | Email de confirmación.  
+Reglas Estrictas:
+
+No usar respuestas genéricas: Cada error debe mostrar el código exacto afectado (archivo + línea).
+
+Priorizar funcionalidad sobre optimización: Asegurar que el flujo básico funcione antes de refactorizar.
+
+Mantener logs legibles: Usar prefijos como [SECURITY] o [DATABASE] para filtrar en consola.
+
+No detenerse hasta que:
+
+Todos los endpoints respondan con códigos HTTP correctos (2xx).
+
+La consola muestre confirmación explícita de cada paso (creación de usuario, envío de emails, actualización de contraseña).
+
+La auditoría de seguridad no reporte vulnerabilidades críticas.
+
+¡Empieza con el primer test de /register! 🛠️
+

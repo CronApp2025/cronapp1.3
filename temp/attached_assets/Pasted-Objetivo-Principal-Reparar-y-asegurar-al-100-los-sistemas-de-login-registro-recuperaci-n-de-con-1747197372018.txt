@@ -1,0 +1,96 @@
+Objetivo Principal:
+Reparar y asegurar al 100% los sistemas de login, registro, recuperación de contraseña, edición de configuración y gestión de cuenta, manteniendo la API existente de Flask, la base de datos MySQL, los puertos actuales y el workflow de Replit. No finalizar hasta que todo funcione correctamente y esté auditado contra vulnerabilidades.
+
+Instrucciones Específicas:
+
+Análisis Inicial (Paso 1):
+
+Revisa el código actual de:
+
+Autenticación (login/logout).
+
+Registro de usuarios (validación de email/contraseña).
+
+Recuperación de contraseña (tokens, enlaces temporales).
+
+Edición de cuenta (actualización de datos sensibles).
+
+Identifica vulnerabilidades (SQL injection, XSS, CSRF, falta de hash en contraseñas, sesiones inseguras, falta de rate-limiting, etc.).
+
+No eliminar ni reescribir código: Optimiza lo existente.
+
+Parches Prioritarios (Paso 2):
+
+Contraseñas:
+
+Usa bcrypt o Werkzeug para hashing (nunca almacenar en texto plano).
+
+Exige contraseñas complejas (mínimo 12 caracteres, símbolos, números).
+
+Sesiones:
+
+Configura cookies con Secure, HttpOnly, SameSite=Strict.
+
+Usa claves secretas robustas y renovables.
+
+SQL:
+
+Aplica prepared statements en todas las queries a MySQL.
+
+Revoca permisos innecesarios en la base de datos.
+
+Tokens de Recuperación:
+
+Genera tokens únicos y con expiración (ej: 15 minutos).
+
+Valida tokens contra la base de datos antes de permitir cambios.
+
+Protección Contra Ataques (Paso 3):
+
+Implementa:
+
+CSRF tokens en formularios (usa Flask-WTF).
+
+Rate-limiting en login/recuperación (ej: 5 intentos por IP/minuto).
+
+Sanitización de inputs contra XSS (ej: bleach o markupsafe).
+
+Headers de seguridad (CSP, HSTS, X-Content-Type).
+
+Verificación y Testing (Paso 4):
+
+Ejecuta pruebas manuales/Automatizadas para:
+
+Flujo completo de registro → login → recuperación → edición.
+
+Intentos de inyección SQL/XSS en formularios.
+
+Robustez de sesiones (¿Se invalidan al cerrar sesión?).
+
+Si falla una prueba:
+
+Corrige el error específico.
+→ Vuelve al Paso 2 y repite hasta 0 fallos.
+
+Requisitos Estrictos:
+
+✅ Mantén la estructura de carpetas y archivos de Replit.
+
+✅ Usa solo la API de Flask y MySQL existentes (sin nuevas dependencias a menos que sean críticas para seguridad).
+
+✅ Documenta cada cambio en el código con comentarios (ej: # FIX: SQLi en query de login).
+
+Estructura de Respuesta Esperada:
+
+[Paso 1] Analizando módulo de login...  
+  - Vulnerabilidad detectada: Contraseñas en texto plano.  
+[Paso 2] Aplicando parche: bcrypt implementado en UserModel.  
+[Paso 4] Test: Verificación de hash... ✅  
+[Paso 2] Error: Token de recuperación no expira.  
+  - Corrección: Añadido campo 'expiración' en MySQL.  
+[Paso 4] Test: Token expirado rechazado... ✅  
+...  
+[Resultado Final] Todos los módulos seguros y funcionales. 🛡️  
+No detenerse hasta que todos los pasos estén marcados con ✅.
+
+Nota: Si hay incertidumbre en algún paso, pregunta antes de modificar código crítico. Prioriza soluciones probadas en Flask (ej: usar Flask-Security para funcionalidades avanzadas).

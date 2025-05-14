@@ -1,0 +1,135 @@
+###POST AGREGAR USUARIO
+POST http://127.0.0.1:5000/api/users/agregar_usuario HTTP/1.1
+content-type: application/json
+
+{
+    "nombre": "Rodrigo",
+    "apellido": "Lagos",
+    "email": "ro.lagosz@duocuc.cl",
+    "fecha_nacimiento": "2025-04-25"
+}
+
+
+
+
+### ACTUALIZAR USUARIO
+PUT http://127.0.0.1:5000/api/users/usuarios HTTP/1.1
+content-type: application/json
+
+{
+    "id":611,
+    "nombre": "444",
+    "apellido": "4444",
+    "email": "111@",
+    "fecha_nacimiento": "2001-01-11"
+}
+
+
+
+###ELIMINAR USUARIO POR ID
+DELETE http://127.0.0.1:5000/api/users/61 HTTP/1.1
+content-type: application/json
+
+{
+
+}
+
+
+
+
+
+###OBTENER TODOS LOS USUARIOS
+GET http://127.0.0.1:5000/api/users/all HTTP/1.1
+content-type: application/json
+
+{
+
+}
+
+
+
+###BUSCAR USUARIO
+GET http://127.0.0.1:5000/api/users/obtener_por_id56/8 HTTP/1.1
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NjU1Nzk3MSwianRpIjoiM2ZmNWYzNzUtNThiMS00ZTMzLWFjNGEtOGZiNzM1ZTNlMTIxIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NDY1NTc5NzEsImNzcmYiOiJlZDJjYWQ5ZC1lNjM4LTQ2MTUtOGE0NS02MDJkYjExNWY0OGQiLCJleHAiOjE3NDY1NTg4NzEsInVzZXJfaWQiOiIxIiwiZW1haWwiOiJqdWFuQGVtYWlsLmNvbSIsIm5vbWJyZSI6Ikp1YW4iLCJhcGVsbGlkbyI6IlBcdTAwZTlyZXoiLCJmZWNoYV9uYWNpbWllbnRvIjoiTW9uLCAwMSBKYW4gMTk5MCAwMDowMDowMCBHTVQifQ.gsIkDR6hUmTmDEtAA8FLoIFetET7kmEkav_iUViLB0Q
+
+{
+
+}
+
+
+
+
+###BUSCAR USUARIO   -  VER, POR QUE MEDEVUELVE SOLO LOS VALORES Y NO LAS COLUMNAS
+GET http://127.0.0.1:5000/api/users/obtener_por_id_body HTTP/1.1
+content-type: application/json
+
+{
+    "id":8888
+}
+
+
+
+
+
+
+###LOGIN
+POST http://127.0.0.1:5000/api/auth/login HTTP/1.1
+content-type: application/json
+
+{
+    "email":"juan@email.com",
+    "password":"123456"
+}
+
+
+###REFRESH
+POST http://127.0.0.1:5000/api/auth/refresh HTTP/1.1
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NjU1Nzk3MSwianRpIjoiM2ZmNWYzNzUtNThiMS00ZTMzLWFjNGEtOGZiNzM1ZTNlMTIxIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NDY1NTc5NzEsImNzcmYiOiJlZDJjYWQ5ZC1lNjM4LTQ2MTUtOGE0NS02MDJkYjExNWY0OGQiLCJleHAiOjE3NDY1NTg4NzEsInVzZXJfaWQiOiIxIiwiZW1haWwiOiJqdWFuQGVtYWlsLmNvbSIsIm5vbWJyZSI6Ikp1YW4iLCJhcGVsbGlkbyI6IlBcdTAwZTlyZXoiLCJmZWNoYV9uYWNpbWllbnRvIjoiTW9uLCAwMSBKYW4gMTk5MCAwMDowMDowMCBHTVQifQ.gsIkDR6hUmTmDEtAA8FLoIFetET7kmEkav_iUViLB0Q
+
+{
+    "email":"juan@email.com",
+    "password":"123456"
+}
+
+
+
+
+
+###CORREO TESTING
+POST http://127.0.0.1:5000/api/recover/test-email HTTP/1.1
+content-type: application/json
+
+{
+
+}
+
+
+
+### 1. SOLICITUD DE RECUPERACION DE CONTRASEÑA
+POST http://127.0.0.1:5000/api/recover/solicitar_recuperacion HTTP/1.1
+Content-Type: application/json
+
+{
+  "email": "ro.lagosz@duocuc.cl"
+}
+
+
+
+#####CAMBIO DE CONTRASEÑA
+POST http://127.0.0.1:5000/api/recover/resetear_password/ImcudmlsbGFjdXJhdEBnbWFpbC5jb20i.aBWTBw._WYccxkj3JHELkXKWAUgo7LAOY8
+Content-Type: application/json
+
+{
+  "new_password": "nueva_contraseña_segura"
+}
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,33 @@
+x Build failed in 4.37s
+error during build:
+[vite:esbuild] Transform failed with 2 errors:
+/home/runner/workspace/client/src/components/dashboard/mobile-navigation.tsx:38:16: ERROR: Multiple exports with the same name "MobileNavigation"
+/home/runner/workspace/client/src/components/dashboard/mobile-navigation.tsx:38:16: ERROR: The symbol "MobileNavigation" has already been declared
+file: /home/runner/workspace/client/src/components/dashboard/mobile-navigation.tsx:38:16
+
+Multiple exports with the same name "MobileNavigation"
+36 |  import { HomeIcon, UserIcon, ActivityIcon, BookOpenIcon, BarChartIcon } from "lucide-react";
+37 |  
+38 |  export function MobileNavigation() {
+   |                  ^
+39 |    return (
+40 |      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-200 lg:hidden">
+
+The symbol "MobileNavigation" has already been declared
+36 |  import { HomeIcon, UserIcon, ActivityIcon, BookOpenIcon, BarChartIcon } from "lucide-react";
+37 |  
+38 |  export function MobileNavigation() {
+   |                  ^
+39 |    return (
+40 |      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-200 lg:hidden">
+
+    at failureErrorWithLog (/home/runner/workspace/node_modules/vite/node_modules/esbuild/lib/main.js:1472:15)
+    at /home/runner/workspace/node_modules/vite/node_modules/esbuild/lib/main.js:755:50
+    at responseCallbacks.<computed> (/home/runner/workspace/node_modules/vite/node_modules/esbuild/lib/main.js:622:9)
+    at handleIncomingPacket (/home/runner/workspace/node_modules/vite/node_modules/esbuild/lib/main.js:677:12)
+    at Socket.readFromStdout (/home/runner/workspace/node_modules/vite/node_modules/esbuild/lib/main.js:600:7)
+    at Socket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:191:23)
