@@ -169,12 +169,20 @@ def callback():
     # Almacenar el token de refresco
     token_manager.store_refresh_token(str(user_id), refresh_token, session_id)
     
-    # Preparar respuesta con redirección
-    resp = redirect("/")  # Redirigimos a la página principal
+    # Preparar respuesta con redirección a dashboard
+    # Redirigimos a dashboard para usuarios autenticados (o a la página principal con un parámetro de éxito)
+    response_url = "/dashboard?auth_success=true"
+    
+    # Para evitar problemas de tipo entre respuestas de Flask y Werkzeug,
+    # creamos una respuesta Flask directamente
+    from flask import make_response
+    resp = make_response(redirect(response_url))
     
     # Configurar cookies seguras con los tokens
     set_access_cookies(resp, access_token)
     set_refresh_cookies(resp, refresh_token)
     
-    # Añadir parámetro para indicar login exitoso
+    # Log para depuración
+    print(f"Autenticación con Google exitosa para {user_email}, redirigiendo a {response_url}")
+    
     return resp

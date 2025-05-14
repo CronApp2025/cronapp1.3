@@ -21,10 +21,13 @@ logging.basicConfig(
 
 app = Flask(__name__)
 # Configuración más específica de CORS para permitir solicitudes desde cualquier origen
+# En producción, reemplazar * por los dominios específicos permitidos
 cors_config = {
     "origins": ["*"],
     "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"]
+    "allow_headers": ["Content-Type", "Authorization", "X-Requested-With", "X-CSRF-TOKEN"],
+    "supports_credentials": True,  # Importante para permitir cookies y autenticación
+    "expose_headers": ["Content-Type", "X-CSRFToken"]
 }
 CORS(app, resources={r"/*": cors_config})
 
@@ -53,7 +56,8 @@ def add_security_headers(response):
     response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
     
     # Política de seguridad de contenido que permite recursos necesarios para OAuth y Replit
-    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com https://apis.google.com https://*.gstatic.com https://replit.com; style-src 'self' 'unsafe-inline' https://*.gstatic.com; img-src 'self' data: https://*.googleusercontent.com https://*.gstatic.com; font-src 'self' data:; connect-src 'self' https://accounts.google.com https://*.replit.dev"
+    # Versión mejorada que incluye más orígenes para Google OAuth y cookies
+    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com https://apis.google.com https://*.gstatic.com https://*.replit.com https://*.replit.dev; style-src 'self' 'unsafe-inline' https://*.gstatic.com; img-src 'self' data: https://*.googleusercontent.com https://*.gstatic.com; font-src 'self' data:; connect-src 'self' https://accounts.google.com https://*.googleapis.com https://*.replit.com https://*.replit.dev; frame-src 'self' https://accounts.google.com"
     
     # Prevenir sniffing de tipos MIME
     response.headers['X-Content-Type-Options'] = 'nosniff'
