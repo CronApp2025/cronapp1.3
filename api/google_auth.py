@@ -19,7 +19,29 @@ GOOGLE_CLIENT_SECRET = os.environ["GOOGLE_OAUTH_CLIENT_SECRET"]
 GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
 
 # Configure la URL de redirección usando el dominio de desarrollo de Replit
-DEV_REDIRECT_URL = f'https://{os.environ.get("REPLIT_SLUG", "")}.{os.environ.get("REPLIT_CLUSTER", "")}.repl.co/api/google_auth/callback'
+def get_replit_domain():
+    """
+    Intentar obtener el dominio de Replit de varias formas
+    """
+    # Obtenemos el dominio de Replit
+    if os.environ.get("REPL_SLUG") and os.environ.get("REPL_OWNER"):
+        return f'https://{os.environ.get("REPL_SLUG")}.{os.environ.get("REPL_OWNER")}.repl.co'
+    
+    # Alternativa: dominio directo si está disponible
+    if os.environ.get("REPL_IDENTITY"):
+        return f'https://{os.environ.get("REPL_IDENTITY")}.repl.co'
+    
+    # Último recurso
+    import socket
+    try:
+        host_name = socket.gethostname()
+        return f'https://{host_name}.repl.co'
+    except:
+        # Si todo falla, usar un dominio genérico (será necesario actualizar manualmente)
+        return 'https://your-repl-name.repl.co'
+
+REPLIT_DOMAIN = get_replit_domain()
+DEV_REDIRECT_URL = f'{REPLIT_DOMAIN}/api/google_auth/callback'
 
 print(f"""Para hacer que la autenticación con Google funcione:
 1. Ve a https://console.cloud.google.com/apis/credentials
@@ -45,8 +67,8 @@ def login():
     # Construir la solicitud de redirección a Google
     request_uri = client.prepare_request_uri(
         authorization_endpoint,
-        # Reemplazar http:// con https:// importante para que coincida con la URI en la lista blanca
-        redirect_uri=request.base_url.replace("http://", "https://") + "/callback",
+        # Usar la URL de redirección predefinida para evitar problemas con la detección de dominio
+        redirect_uri=DEV_REDIRECT_URL,
         scope=["openid", "email", "profile"],
     )
     return redirect(request_uri)
@@ -62,9 +84,9 @@ def callback():
     # Preparar y enviar la solicitud de token
     token_url, headers, body = client.prepare_token_request(
         token_endpoint,
-        # Reemplazar http:// con https:// importante para que coincida con la URI en la lista blanca
+        # Usar la URL predefinida para evitar problemas de detección
         authorization_response=request.url.replace("http://", "https://"),
-        redirect_url=request.base_url.replace("http://", "https://"),
+        redirect_url=DEV_REDIRECT_URL,
         code=code,
     )
     token_response = requests.post(

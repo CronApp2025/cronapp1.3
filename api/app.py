@@ -53,7 +53,7 @@ def add_security_headers(response):
     response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
     
     # Política de seguridad de contenido que permite recursos necesarios para OAuth
-    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com https://replit.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.gstatic.com; font-src 'self'; connect-src 'self' https://*.replit.dev"
+    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com https://apis.google.com https://*.gstatic.com; style-src 'self' 'unsafe-inline' https://*.gstatic.com; img-src 'self' data: https://*.googleusercontent.com https://*.gstatic.com; font-src 'self' data:; connect-src 'self' https://accounts.google.com https://*.replit.dev"
     
     # Prevenir sniffing de tipos MIME
     response.headers['X-Content-Type-Options'] = 'nosniff'
@@ -206,6 +206,7 @@ app.register_blueprint(usuarios, url_prefix='/api/usuarios')
 app.register_blueprint(recover_password, url_prefix='/api/recover')
 app.register_blueprint(register, url_prefix='/api/register')
 app.register_blueprint(settings, url_prefix='/api')
+app.register_blueprint(google_auth)
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
