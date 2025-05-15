@@ -1,0 +1,96 @@
+Objetivo General:
+Analizar cada archivo y directorio del proyecto desde cero (sin asumir funcionalidades), eliminar todo lo innecesario, reconectar módulos existentes, y resolver errores hasta que la consola de Replit esté 100% limpia.
+
+Instrucciones Estrictas:
+1. Auditoría Inicial (Sin Modificar Nada):
+Revisar:
+
+Estructura de Carpetas:
+
+backend/, frontend/, models/, utils/, static/, templates/, etc.
+
+Identificar archivos huérfanos (ej: script_old.js, test_abandoned.py).
+
+Código:
+
+Funciones no utilizadas, imports sin uso, variables globales innecesarias.
+
+Conexiones rotas entre módulos (ej: from core.auth import login pero core/auth.py no existe).
+
+Dependencias:
+
+Paquetes en requirements.txt no usados en el código (ej: pandas instalado pero nunca importado).
+
+2. Eliminar Basura (Solo Después de Confirmar):
+Archivos a Borrar:
+
+Temporales: .log, .tmp, __pycache__/, *.bak.
+
+Redundantes: config_copy.yaml, database_old.sqlite.
+
+Assets no usados: Imágenes/CSS/JS sin referencias en el código.
+
+Código Muerto:
+
+Comentar en lugar de borrar (ej: # DEPRECATED: routes/legacy_login.py).
+
+3. Reconexión de Módulos Existentes:
+Verificar Flujos Críticos:
+
+¿El frontend (static/js/app.js) llama correctamente a la API de Flask (/api/login)?
+
+¿Los modelos de MySQL (models/user.py) se importan en los controladores (controllers/auth.py)?
+
+Parchear Conexiones Rotas:
+
+Si utils/helpers.py es usado en models/db.py, asegurar que la ruta de importación sea correcta.
+
+4. Instalar/Desinstalar Dependencias:
+Automatizar:
+
+Ejecutar pip uninstall para paquetes no usados (ej: flask-admin si no hay rutas de admin).
+
+Instalar solo lo necesario (si bcrypt falta pero se usa en auth.py, añadirlo a requirements.txt).
+
+5. Testing Post-Limpieza:
+Pasos Obligatorios:
+
+Ejecutar flask run y verificar que no hay ImportError o ModuleNotFoundError.
+
+Probar manualmente: registro → login → acceso a dashboard → logout.
+
+Revisar consola de Replit: 0 errores (ni warnings críticos).
+
+Estructura de Respuesta Requerida:
+[FASE 1] Auditoría...  
+  - Carpetas analizadas: 8 (3 con archivos redundantes).  
+  - Código muerto: utils/old_encrypt.py (nunca importado). 🗑️  
+  - Dependencia innecesaria: matplotlib (no usado). 🗑️  
+
+[FASE 2] Limpieza...  
+  - Eliminados: 12 archivos temporales, 3 CSS sin uso. ✅  
+  - Comentados: 2 módulos obsoletos (⚠️ Revisar con usuario).  
+
+[FASE 3] Reconexión...  
+  - Error: frontend/src/api.js → Llamada a /api/v1/login (ruta correcta es /api/login). 🔧  
+  - Solución: Ajuste en endpoint. ✅  
+
+[FASE 4] Dependencias...  
+  - Desinstalado: matplotlib, requests. ✅  
+  - Instalado: bcrypt, python-dotenv. ✅  
+
+[FASE 5] Testeo Final...  
+  - Consola: 0 errores. ✅  
+  - Flujo de login: 200 OK. ✅  
+  - Errores previos (CSP, 401): Resueltos. ✅  
+
+[RESULTADO] Proyecto limpio, modularizado y funcional. 🏁  
+Reglas Inquebrantables:
+No inventar módulos: Si falta utils/logger.py pero se usa en el código, detener y preguntar.
+
+No optimizar código existente (solo limpiar/parchar).
+
+Priorizar consola limpia sobre rendimiento (ej: si un console.log() debug causa warnings, eliminarlo).
+
+¡No detenerse hasta que flask run ejecute sin errores y el usuario pueda navegar sin fallos! 🔥
+
