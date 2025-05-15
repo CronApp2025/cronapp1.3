@@ -88,58 +88,7 @@ const PatientDetailPage = ({ params }: { params: { id: string } }) => (
 
 
 
-const AppContent = () => {
-  const { isAuthenticated } = useAuth();
-  const [location] = useLocation();
-  
-  // Agregar logs para depuración
-  console.log("AppContent: Ubicación actual:", location);
-  
-  // Lista explícita de rutas públicas
-  const publicRoutes = ['/login', '/register', '/forgot-password'];
-  
-  // Comprobar si es una ruta pública
-  const isPublicRoute = publicRoutes.some(route => 
-    typeof location === 'string' && location.startsWith(route)
-  );
-
-  // Explícitamente excluir las rutas de reset-password, que ahora se manejan completamente
-  // fuera de AppContent en el componente App principal
-  const isResetPasswordRoute = typeof location === 'string' && location.startsWith('/reset-password/');
-  
-  // Si es una ruta de reseteo, no hacemos nada (se manejará en App.tsx)
-  if (isResetPasswordRoute) {
-    console.log("AppContent: Ignorando ruta de reseteo, se maneja en App principal");
-    return null;
-  }
-
-  // Si no está autenticado o es una ruta pública, mostrar las rutas públicas
-  if (isPublicRoute || !isAuthenticated) {
-    return (
-      <Switch>
-        <Route path="/login" component={LoginPage} />
-        <Route path="/register" component={RegisterPage} />
-        <Route path="/forgot-password" component={ForgotPasswordPage} />
-        <Route path="*" component={() => <Route path="/login" component={LoginPage} />} /> {/* Redirect unmatched routes to login */}
-      </Switch>
-    );
-  }
-
-  return (
-    <Switch>
-      <Route path="/" component={DashboardPage} />
-      <Route path="/dashboard" component={DashboardPage} />
-      <Route path="/settings" component={() => (
-        <DashboardLayout>
-          <SettingsFormNew />
-        </DashboardLayout>
-      )} />
-      <Route path="/condiciones" component={ConditionsPage} />
-      <Route path="/pacientes" component={PatientsPage} />
-      <Route component={NotFound} />
-    </Switch>
-  );
-};
+// Eliminamos AppContent para evitar redundancia y problemas
 
 // Página independiente de reseteo de contraseña que se manejará fuera del contexto de autenticación
 const StandaloneResetPasswordPage = ({ params }: { params: { token: string } }) => {
@@ -193,24 +142,8 @@ export default function App() {
               </Route>
               
               {/* Rutas que requieren autenticación */}
-              <Route path="/">
-                {() => {
-                  const { isAuthenticated } = useAuth();
-                  if (!isAuthenticated) {
-                    return <LoginPage />;
-                  }
-                  return <DashboardPage />;
-                }}
-              </Route>
-              <Route path="/dashboard">
-                {() => {
-                  const { isAuthenticated } = useAuth();
-                  if (!isAuthenticated) {
-                    return <LoginPage />;
-                  }
-                  return <DashboardPage />;
-                }}
-              </Route>
+              <Route path="/" component={DashboardPage} />
+              <Route path="/dashboard" component={DashboardPage} />
               <Route path="/settings">
                 {() => {
                   const { isAuthenticated } = useAuth();
