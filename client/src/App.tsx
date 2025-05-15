@@ -19,6 +19,8 @@ import { PatientProfile } from "@/components/dashboard/PatientProfile";
 import { RiskMonitoring } from "@/components/dashboard/RiskMonitoring";
 import { ConditionManagement } from "@/components/dashboard/ConditionManagement";
 import { ClinicalEducation } from "@/components/dashboard/ClinicalEducation";
+import { PatientsList } from "@/components/dashboard/PatientsList";
+import { PatientDetail } from "@/components/dashboard/PatientDetail";
 
 // Route components
 const LoginPage = () => (
@@ -73,12 +75,13 @@ const ConditionsPage = () => (
 
 const PatientsPage = () => (
   <DashboardLayout>
-    <div className="bg-white rounded-lg shadow-sm p-6">
-      <h2 className="text-xl font-semibold text-neutral-800 mb-4">Listado de Pacientes</h2>
-      <p className="text-neutral-600">
-        Esta sección está en desarrollo. Pronto podrás ver un listado completo de tus pacientes.
-      </p>
-    </div>
+    <PatientsList />
+  </DashboardLayout>
+);
+
+const PatientDetailPage = ({ params }: { params: { id: string } }) => (
+  <DashboardLayout>
+    <PatientDetail id={params.id} />
   </DashboardLayout>
 );
 
@@ -246,6 +249,15 @@ export default function App() {
                     return <LoginPage />;
                   }
                   return <PatientsPage />;
+                }}
+              </Route>
+              <Route path="/paciente/:id">
+                {(params) => {
+                  const { isAuthenticated } = useAuth();
+                  if (!isAuthenticated) {
+                    return <LoginPage />;
+                  }
+                  return <PatientDetailPage params={params} />;
                 }}
               </Route>
               <Route path="/estadisticas">
