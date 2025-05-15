@@ -26,7 +26,7 @@ import { motion } from "framer-motion";
 import { MOCK_PATIENTS } from "@/lib/constants";
 import { formatDateString } from "@/lib/utils";
 import { usePatients } from "@/hooks/use-patient";
-import { Alert, Condition, Patient, User } from "@shared/schema";
+import { Alert, Condition, Patient } from "@shared/schema";
 
 // Variantes para animaciones
 const fadeIn = {
@@ -62,7 +62,7 @@ export function PatientProfile() {
   useEffect(() => {
     if (usersData && Array.isArray(usersData)) {
       // Mapear usuarios a formato de paciente
-      const mappedPatients = usersData.map((user: User) => ({
+      const mappedPatients = usersData.map((user: any) => ({
         id: user.id,
         fullName: `${user.nombre} ${user.apellido}`,
         age: calculateAge(user.fecha_nacimiento),
@@ -251,7 +251,7 @@ export function PatientProfile() {
               <div className="flex flex-col md:flex-row gap-4 sm:gap-6">
                 <div className="md:w-1/4">
                   <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-gradient-to-r from-blue-100 to-blue-300 flex items-center justify-center mx-auto md:mx-0 mb-3 transition-all hover:shadow-lg">
-                    <User className="h-12 w-12 sm:h-16 sm:w-16 text-blue-600" />
+                    <UserIcon className="h-12 w-12 sm:h-16 sm:w-16 text-blue-600" />
                   </div>
                   <div className="text-center md:text-left">
                     <h3 className="text-lg sm:text-xl font-semibold text-neutral-800">{patient.fullName}</h3>
@@ -325,7 +325,7 @@ export function PatientProfile() {
                       <Progress 
                         value={criticalAlert.risk_level || 0} 
                         className="h-2 bg-neutral-200" 
-                        indicatorClassName={getSeverityColor(criticalAlert.risk_level)}
+                        indicatorColor={getSeverityColor(criticalAlert.risk_level)}
                       />
                     </motion.div>
                   )}
