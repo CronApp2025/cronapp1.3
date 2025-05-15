@@ -1,0 +1,109 @@
+[
+  {
+    "id": 1,
+    "fullName": "Mar\u00eda Garc\u00eda Rodr\u00edguez",
+    "age": 56,
+    "gender": "Femenino",
+    "status": "Activo",
+    "fecha_nacimiento": "1969-05-10",
+    "conditions": [
+      {
+        "id": 1,
+        "name": "Hipertensi\u00f3n",
+        "icon": "heart-pulse",
+        "lastUpdated": "2025-05-01T03:25:50.461797"
+      },
+      {
+        "id": 2,
+        "name": "Diabetes Tipo 2",
+        "icon": "droplet",
+        "lastUpdated": "2025-05-08T03:25:50.461809"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "fullName": "Carlos Mart\u00ednez L\u00f3pez",
+    "age": 68,
+    "gender": "Masculino",
+    "status": "Activo",
+    "fecha_nacimiento": "1957-11-22",
+    "conditions": [
+      {
+        "id": 1,
+        "name": "Hipertensi\u00f3n",
+        "icon": "heart-pulse",
+        "lastUpdated": "2025-04-25T03:25:50.461812"
+      },
+      {
+        "id": 3,
+        "name": "Asma",
+        "icon": "lungs",
+        "lastUpdated": "2025-04-30T03:25:50.461814"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "fullName": "Ana Jim\u00e9nez Ortiz",
+    "age": 42,
+    "gender": "Femenino",
+    "status": "Inactivo",
+    "fecha_nacimiento": "1983-03-15",
+    "conditions": [
+      {
+        "id": 3,
+        "name": "Asma",
+        "icon": "lungs",
+        "lastUpdated": "2025-03-31T03:25:50.461816"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "fullName": "Javier S\u00e1nchez Torres",
+    "age": 74,
+    "gender": "Masculino",
+    "status": "Activo",
+    "fecha_nacimiento": "1951-08-03",
+    "conditions": [
+      {
+        "id": 4,
+        "name": "Artritis",
+        "icon": "activity",
+        "lastUpdated": "2025-05-05T03:25:50.461818"
+      },
+      {
+        "id": 1,
+        "name": "Hipertensi\u00f3n",
+        "icon": "heart-pulse",
+        "lastUpdated": "2025-04-15T03:25:50.461820"
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "fullName": "Laura Fern\u00e1ndez Ruiz",
+    "age": 61,
+    "gender": "Femenino",
+    "status": "Activo",
+    "fecha_nacimiento": "1964-12-18",
+    "conditions": [
+      {
+        "id": 5,
+        "name": "Hipotiroidismo",
+        "icon": "activity",
+        "lastUpdated": "2025-05-10T03:25:50.461822"
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "fullName": "Roberto Gonz\u00e1lez P\u00e9rez",
+    "age": 50,
+    "gender": "Masculino",
+    "status": "Inactivo",
+    "fecha_nacimiento": "1975-05-25",
+    "conditions": []
+  }
+]

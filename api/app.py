@@ -11,6 +11,7 @@ from routes.usuario import usuarios
 from routes.recover_password import recover_password
 from routes.register import register
 from routes.settings import settings
+from routes.patients import patients_bp
 from google_auth import google_auth
 from functools import wraps
 # Configurar logging
@@ -210,6 +211,7 @@ app.register_blueprint(usuarios, url_prefix='/api/usuarios')
 app.register_blueprint(recover_password, url_prefix='/api/recover')
 app.register_blueprint(register, url_prefix='/api/register')
 app.register_blueprint(settings, url_prefix='/api')
+app.register_blueprint(patients_bp, url_prefix='/api')
 app.register_blueprint(google_auth)
 
 @app.route('/', defaults={'path': ''})
