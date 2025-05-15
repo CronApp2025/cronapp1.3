@@ -58,11 +58,10 @@ const ResetPasswordPage = ({ params }: { params: { token: string } }) => (
 const DashboardPage = () => (
   <DashboardLayout>
     <div className="space-y-6">
-      <div className="p-6 bg-white rounded-lg shadow-sm">
-        <h1 className="text-2xl font-semibold mb-4">Bienvenido a CronApp</h1>
-        <p className="text-muted-foreground">
-          Utiliza el menú lateral para acceder a las diferentes secciones de la aplicación.
-        </p>
+      <PatientProfile />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <RiskMonitoring />
+        <ClinicalEducation />
       </div>
     </div>
   </DashboardLayout>
