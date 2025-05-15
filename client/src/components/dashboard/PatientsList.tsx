@@ -201,7 +201,7 @@ export function PatientsList() {
   // Función para filtrar pacientes según búsqueda y estado
   const filteredPatients = patients?.filter((patient: Patient) => {
     const matchesSearch = patient.fullName.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === "" || patient.status.toLowerCase() === statusFilter.toLowerCase();
+    const matchesStatus = statusFilter === "todos" || !statusFilter || patient.status.toLowerCase() === statusFilter.toLowerCase();
     return matchesSearch && matchesStatus;
   }) || [];
 
@@ -330,7 +330,7 @@ export function PatientsList() {
                 <SelectValue placeholder="Filtrar por estado" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos</SelectItem>
+                <SelectItem value="todos">Todos</SelectItem>
                 <SelectItem value="activo">Activos</SelectItem>
                 <SelectItem value="inactivo">Inactivos</SelectItem>
               </SelectContent>

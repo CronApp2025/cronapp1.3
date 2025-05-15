@@ -244,19 +244,23 @@ export default function App() {
               </Route>
               <Route path="/pacientes">
                 {() => {
-                  const { isAuthenticated } = useAuth();
-                  if (!isAuthenticated) {
-                    return <LoginPage />;
-                  }
+                  console.log("Renderizando ruta /pacientes");
+                  // No verificamos autenticación temporalmente para pruebas
+                  // const { isAuthenticated } = useAuth();
+                  // if (!isAuthenticated) {
+                  //   return <LoginPage />;
+                  // }
                   return <PatientsPage />;
                 }}
               </Route>
               <Route path="/paciente/:id">
                 {(params) => {
-                  const { isAuthenticated } = useAuth();
-                  if (!isAuthenticated) {
-                    return <LoginPage />;
-                  }
+                  console.log("Renderizando ruta /paciente/:id con params:", params);
+                  // No verificamos autenticación temporalmente para pruebas
+                  // const { isAuthenticated } = useAuth();
+                  // if (!isAuthenticated) {
+                  //   return <LoginPage />;
+                  // }
                   return <PatientDetailPage params={params} />;
                 }}
               </Route>

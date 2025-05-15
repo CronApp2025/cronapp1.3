@@ -10,15 +10,19 @@ export function usePatients() {
     queryKey: ["/api/patients"],
     queryFn: async () => {
       try {
+        console.log("Haciendo petición a /api/patients");
         const response = await apiRequest("GET", "/api/patients");
-        return await response.json();
+        const data = await response.json();
+        console.log("Datos obtenidos de la API:", data);
+        return data;
       } catch (error) {
         // En caso de error, usamos los datos de ejemplo
-        console.warn("Usando datos de ejemplo para pacientes");
+        console.warn("Error obteniendo pacientes, usando datos de ejemplo:", error);
         return MOCK_PATIENTS;
       }
     },
-    initialData: MOCK_PATIENTS
+    initialData: MOCK_PATIENTS,
+    retry: 1
   });
 }
 
@@ -59,7 +63,7 @@ export function useUpdatePatient() {
       toast({
         title: "Paciente actualizado",
         description: "Los datos del paciente han sido actualizados correctamente.",
-        variant: "success",
+        variant: "default",
       });
     },
     onError: (error: Error) => {
@@ -87,7 +91,7 @@ export function useDeletePatient() {
       toast({
         title: "Paciente eliminado",
         description: "El paciente ha sido eliminado correctamente.",
-        variant: "success",
+        variant: "default",
       });
     },
     onError: (error: Error) => {
@@ -115,7 +119,7 @@ export function useAddPatient() {
       toast({
         title: "Paciente agregado",
         description: "El paciente ha sido agregado correctamente.",
-        variant: "success",
+        variant: "default",
       });
     },
     onError: (error: Error) => {
