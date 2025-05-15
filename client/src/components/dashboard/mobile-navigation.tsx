@@ -8,7 +8,6 @@ export function MobileNavigation() {
     { name: "Panel", path: "/dashboard", icon: <Home className="h-5 w-5" /> },
     { name: "Pacientes", path: "/pacientes", icon: <Users className="h-5 w-5" /> },
     { name: "Condiciones", path: "/condiciones", icon: <Activity className="h-5 w-5" /> },
-    { name: "Estadísticas", path: "/estadisticas", icon: <BarChart2 className="h-5 w-5" /> },
     { name: "Educación", path: "/educacion", icon: <GraduationCap className="h-5 w-5" /> }
   ];
 

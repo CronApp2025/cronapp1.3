@@ -28,21 +28,6 @@ export const Header = ({ activePath = "/" }: HeaderProps) => {
             <img src="/images/logo.png" alt="CronApp Logo" className="h-8 w-8" />
             <h1 className="hidden md:block text-xl font-semibold text-foreground ml-2">CronApp</h1>
           </div>
-
-          <nav className="hidden md:flex space-x-6 pl-6">
-            <Link href="/" className={`text-sm font-medium ${activePath === "/" ? "text-primary" : "text-muted hover:text-foreground"}`}>
-              Dashboard
-            </Link>
-            <Link href="/pacientes" className={`text-sm font-medium ${activePath === "/pacientes" ? "text-primary" : "text-muted hover:text-foreground"}`}>
-              Pacientes
-            </Link>
-            <Link href="/condiciones" className={`text-sm font-medium ${activePath === "/condiciones" ? "text-primary" : "text-muted hover:text-foreground"}`}>
-              Condiciones
-            </Link>
-            <Link href="/estadisticas" className={`text-sm font-medium ${activePath === "/estadisticas" ? "text-primary" : "text-muted hover:text-foreground"}`}>
-              Estadísticas
-            </Link>
-          </nav>
         </div>
 
         <div className="flex items-center space-x-4">

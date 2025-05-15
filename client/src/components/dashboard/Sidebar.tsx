@@ -32,12 +32,7 @@ export function Sidebar({ className }: SidebarProps) {
                 <span>Condiciones</span>
               </a>
             </Link>
-            <Link href="/estadisticas">
-              <a className="flex items-center gap-3 rounded-md px-3 py-2 text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900">
-                <BarChart className="h-4 w-4" />
-                <span>Estadísticas</span>
-              </a>
-            </Link>
+
           </div>
         </div>
 

@@ -58,10 +58,11 @@ const ResetPasswordPage = ({ params }: { params: { token: string } }) => (
 const DashboardPage = () => (
   <DashboardLayout>
     <div className="space-y-6">
-      <PatientProfile />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <RiskMonitoring />
-        <ClinicalEducation />
+      <div className="p-6 bg-white rounded-lg shadow-sm">
+        <h1 className="text-2xl font-semibold mb-4">Bienvenido a CronApp</h1>
+        <p className="text-muted-foreground">
+          Utiliza el menú lateral para acceder a las diferentes secciones de la aplicación.
+        </p>
       </div>
     </div>
   </DashboardLayout>
@@ -85,16 +86,7 @@ const PatientDetailPage = ({ params }: { params: { id: string } }) => (
   </DashboardLayout>
 );
 
-const StatsPage = () => (
-  <DashboardLayout>
-    <div className="bg-white rounded-lg shadow-sm p-6">
-      <h2 className="text-xl font-semibold text-neutral-800 mb-4">Estadísticas y Análisis</h2>
-      <p className="text-neutral-600">
-        Esta sección está en desarrollo. Próximamente podrás ver estadísticas y análisis de tus pacientes.
-      </p>
-    </div>
-  </DashboardLayout>
-);
+
 
 const AppContent = () => {
   const { isAuthenticated } = useAuth();
@@ -144,7 +136,6 @@ const AppContent = () => {
       )} />
       <Route path="/condiciones" component={ConditionsPage} />
       <Route path="/pacientes" component={PatientsPage} />
-      <Route path="/estadisticas" component={StatsPage} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -264,15 +255,7 @@ export default function App() {
                   return <PatientDetailPage params={params} />;
                 }}
               </Route>
-              <Route path="/estadisticas">
-                {() => {
-                  const { isAuthenticated } = useAuth();
-                  if (!isAuthenticated) {
-                    return <LoginPage />;
-                  }
-                  return <StatsPage />;
-                }}
-              </Route>
+
               
               {/* Ruta para manejar 404s */}
               <Route component={NotFound} />
