@@ -14,11 +14,12 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const isMobile = useIsMobile();
-  const { isLoading } = useAuth();
-
-  if (isLoading) {
-    return <LoadingScreen message="Cargando dashboard..." />;
-  }
+  // Desactivamos la verificación de autenticación para permitir acceso al dashboard
+  // const { isLoading } = useAuth();
+  // 
+  // if (isLoading) {
+  //   return <LoadingScreen message="Cargando dashboard..." />;
+  // }
 
   return (
     <div className="min-h-screen bg-neutral-50 flex flex-col">

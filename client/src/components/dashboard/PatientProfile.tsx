@@ -10,7 +10,7 @@ import {
   Download,
   FileText, 
   Heart, 
-  User 
+  User as UserIcon 
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -26,7 +26,7 @@ import { motion } from "framer-motion";
 import { MOCK_PATIENTS } from "@/lib/constants";
 import { formatDateString } from "@/lib/utils";
 import { usePatients } from "@/hooks/use-patient";
-import { Alert, Condition, Patient } from "@shared/schema";
+import { Alert, Condition, Patient, User } from "@shared/schema";
 
 // Variantes para animaciones
 const fadeIn = {
