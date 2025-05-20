@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import NotFound from "@/pages/not-found";
 import { LoadingScreen } from "@/components/ui/loading-screen";
 import { SettingsFormNew } from "@/components/dashboard/settings/settings-form-new";
+import SettingsOnboardingPage from "@/pages/SettingsOnboardingPage";
 
 // Components imports
 import { LoginForm } from "@/components/auth/login-form";
@@ -176,6 +177,10 @@ export default function App() {
               {/* Rutas que requieren autenticación */}
               <Route path="/" component={DashboardPage} />
               <Route path="/dashboard" component={DashboardPage} />
+              
+              {/* Ruta para editar datos de onboarding */}
+              <Route path="/settings/onboarding" component={SettingsOnboardingPage} />
+              
               <Route path="/settings">
                 {() => {
                   const { isAuthenticated } = useAuth();

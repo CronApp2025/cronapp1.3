@@ -66,6 +66,12 @@ export const Header = ({ activePath = "/" }: HeaderProps) => {
                       Configuración
                     </a>
                   </Link>
+                  <Link href="/settings/onboarding">
+                    <a className="w-full text-left px-3 py-2 text-sm text-muted hover:bg-secondary rounded-md flex items-center">
+                      <Settings className="h-4 w-4 mr-2" />
+                      Datos de Salud
+                    </a>
+                  </Link>
                   <button 
                     onClick={handleLogout}
                     className="w-full text-left px-3 py-2 text-sm text-risk-high hover:bg-secondary rounded-md flex items-center"
