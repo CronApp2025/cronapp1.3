@@ -276,17 +276,11 @@ export default function App() {
   
   return (
     <QueryClientProvider client={queryClient}>
-      {googleAuthAvailable ? (
-        <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-          <AuthProvider>
-            <AppWithAuth />
-          </AuthProvider>
-        </GoogleOAuthProvider>
-      ) : (
+      <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
         <AuthProvider>
           <AppWithAuth />
         </AuthProvider>
-      )}
-    </QueryClientProvider>
+      </GoogleOAuthProvider>
+    </QueryClientProvider>ryClientProvider>
   );
 }

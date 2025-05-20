@@ -23,13 +23,7 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { apiRequest } from "@/lib/queryClient";
 
-// Importación condicional para evitar errores
-let useGoogleLogin: any = null;
-try {
-  // Intentamos importar dinámicamente
-  ({ useGoogleLogin } = require("@react-oauth/google"));
-} catch (error) {
-  console.warn("Google OAuth no está disponible", error);
+import { useGoogleLogin } from '@react-oauth/google';;
 }
 
 const formSchema = z.object({
