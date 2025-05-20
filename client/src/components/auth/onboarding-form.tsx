@@ -634,11 +634,20 @@ export function OnboardingForm() {
 
   return (
     <div className="w-full max-w-3xl mx-auto">
-      <Card className="border-0 shadow-md bg-card transition-all duration-200">
+      <Card className="border-0 shadow-md bg-card/95 transition-all duration-200">
         <div className="p-4">
-          <Progress value={progress} className="h-2" />
+          <Progress value={progress} className="h-2 bg-muted/30" />
         </div>
-        {renderStage()}
+        <div className="relative overflow-hidden">
+          {/* Fondo decorativo sutil */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mt-12 -mr-12 z-0"></div>
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-secondary/5 rounded-full -mb-8 -ml-8 z-0"></div>
+          
+          {/* Contenido del formulario */}
+          <div className="relative z-10">
+            {renderStage()}
+          </div>
+        </div>
       </Card>
     </div>
   );
