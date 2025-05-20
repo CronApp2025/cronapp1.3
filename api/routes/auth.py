@@ -208,6 +208,13 @@ def google_auth():
     Endpoint para la autenticación con Google.
     Recibe los datos del usuario autenticado con Google y crea o actualiza el usuario en nuestra BD.
     """
+    # Importar la variable que indica si Google Auth está configurado
+    from api.google_auth import GOOGLE_AUTH_CONFIGURED
+    
+    # Verificar si la autenticación de Google está habilitada
+    if not GOOGLE_AUTH_CONFIGURED:
+        return error_response("La autenticación con Google no está configurada en el servidor", 501)
+        
     try:
         # Obtener datos enviados desde el frontend
         data = request.get_json()
