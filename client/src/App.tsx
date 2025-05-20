@@ -3,6 +3,7 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
+import { useOnboarding } from "@/hooks/use-onboarding";
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { useEffect } from "react";
 import NotFound from "@/pages/not-found";
@@ -14,6 +15,7 @@ import { LoginForm } from "@/components/auth/login-form";
 import { RegisterForm } from "@/components/auth/register-form";
 import { ForgotPasswordForm } from "@/components/auth/forgot-password-form";
 import { ResetPasswordForm } from "@/components/auth/reset-password-form";
+import { OnboardingForm } from "@/components/auth/onboarding-form";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { PatientProfile } from "@/components/dashboard/PatientProfile";
 import { RiskMonitoring } from "@/components/dashboard/RiskMonitoring";
@@ -55,17 +57,35 @@ const ResetPasswordPage = ({ params }: { params: { token: string } }) => (
   </div>
 );
 
-const DashboardPage = () => (
-  <DashboardLayout>
-    <div className="space-y-6">
-      <PatientProfile />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <RiskMonitoring />
-        <ClinicalEducation />
+const DashboardPage = () => {
+  const { isAuthenticated } = useAuth();
+  const { hasCompletedOnboarding, isCheckingOnboardingStatus } = useOnboarding();
+  const [, navigate] = useLocation();
+
+  // Si el usuario está autenticado pero no ha completado el onboarding, redirigirlo
+  useEffect(() => {
+    if (isAuthenticated && !isCheckingOnboardingStatus && !hasCompletedOnboarding) {
+      navigate('/onboarding');
+    }
+  }, [isAuthenticated, isCheckingOnboardingStatus, hasCompletedOnboarding, navigate]);
+
+  // Mostramos una pantalla de carga mientras verificamos el estado
+  if (isCheckingOnboardingStatus) {
+    return <LoadingScreen />;
+  }
+
+  return (
+    <DashboardLayout>
+      <div className="space-y-6">
+        <PatientProfile />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <RiskMonitoring />
+          <ClinicalEducation />
+        </div>
       </div>
-    </div>
-  </DashboardLayout>
-);
+    </DashboardLayout>
+  );
+};
 
 const ConditionsPage = () => (
   <DashboardLayout>
@@ -138,6 +158,40 @@ export default function App() {
               <Route path="/forgot-password" component={ForgotPasswordPage} />
               <Route path="/reset-password/:token">
                 {(params) => <ResetPasswordPage params={params} />}
+              </Route>
+              
+              {/* Ruta de onboarding para nuevos usuarios */}
+              <Route path="/onboarding">
+                {() => {
+                  const { isAuthenticated, isLoading } = useAuth();
+                  const { hasCompletedOnboarding, isCheckingOnboardingStatus } = useOnboarding();
+                  const [, navigate] = useLocation();
+                  
+                  // Si no está autenticado, redirigir al login
+                  if (!isAuthenticated && !isLoading) {
+                    return <LoginPage />;
+                  }
+                  
+                  // Si está autenticado y ya completó el onboarding, redirigir al dashboard
+                  if (isAuthenticated && !isCheckingOnboardingStatus && hasCompletedOnboarding) {
+                    useEffect(() => {
+                      navigate('/dashboard');
+                    }, []);
+                    return <LoadingScreen />;
+                  }
+                  
+                  // Mientras carga, mostrar pantalla de carga
+                  if (isLoading || isCheckingOnboardingStatus) {
+                    return <LoadingScreen />;
+                  }
+                  
+                  // Si está autenticado pero no ha completado el onboarding, mostrar el formulario
+                  return (
+                    <div className="flex items-center justify-center min-h-screen p-4 bg-neutral">
+                      <OnboardingForm />
+                    </div>
+                  );
+                }}
               </Route>
               
               {/* Rutas que requieren autenticación */}

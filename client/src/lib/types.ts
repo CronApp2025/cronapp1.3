@@ -4,6 +4,7 @@ export interface User {
   apellido: string;
   email: string;
   fecha_nacimiento: string;
+  has_completed_onboarding?: boolean;
 }
 
 export interface LoginCredentials {
