@@ -115,7 +115,8 @@ export default function SettingsOnboardingPage() {
         genero: onboardingData.datos_personales.genero
       };
       
-      const response = await fetch('/api/onboarding', {
+      // Usar la ruta específica para actualizar desde configuración
+      const response = await fetch('/api/settings/onboarding', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
