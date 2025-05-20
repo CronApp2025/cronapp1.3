@@ -11,6 +11,20 @@ from helper.response_utils import success_response, error_response
 from helper.transaction import db_transaction
 from flask_jwt_extended import get_jwt, verify_jwt_in_request
 from helper.token_manager import token_manager
+# Verificar si la autenticación de Google está habilitada
+# Valor predeterminado: False (deshabilitado)
+GOOGLE_AUTH_CONFIGURED = False
+try:
+    import sys, os
+    from pathlib import Path
+    # Importación opcional
+    module_path = Path(__file__).parent.parent
+    if module_path not in sys.path:
+        sys.path.append(str(module_path))
+    from google_auth import GOOGLE_AUTH_CONFIGURED
+except ImportError:
+    print("No se pudo importar la configuración de Google Auth. La autenticación con Google estará deshabilitada.")
+    GOOGLE_AUTH_CONFIGURED = False
 
 auth = Blueprint('auth', __name__)
 
@@ -202,14 +216,28 @@ def refresh():
         print(f"Error al refrescar el token: {str(e)}")
         return error_response(f"Error al refrescar el token: {str(e)}")
 
+@auth.route('/auth-methods', methods=['GET'])
+def get_auth_methods():
+    """
+    Endpoint para obtener información sobre los métodos de autenticación disponibles.
+    Permite al frontend saber qué opciones de login mostrar.
+    """
+    try:
+        auth_methods = {
+            "google_auth_available": GOOGLE_AUTH_CONFIGURED,
+            "email_auth_available": True  # La autenticación por email siempre está disponible
+        }
+        return success_response(data=auth_methods)
+    except Exception as e:
+        print(f"Error al obtener métodos de autenticación: {str(e)}")
+        return error_response(f"Error al obtener métodos de autenticación: {str(e)}")
+
 @auth.route('/google', methods=['POST'])
 def google_auth():
     """
     Endpoint para la autenticación con Google.
     Recibe los datos del usuario autenticado con Google y crea o actualiza el usuario en nuestra BD.
     """
-    # Importar la variable que indica si Google Auth está configurado
-    from api.google_auth import GOOGLE_AUTH_CONFIGURED
     
     # Verificar si la autenticación de Google está habilitada
     if not GOOGLE_AUTH_CONFIGURED:
