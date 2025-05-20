@@ -20,18 +20,15 @@ from helper.Middleware.rate_limiter import rate_limit
 @rate_limit(max_requests=5, per_seconds=60, by_route=True)  # Límite estricto para prevenir ataques de fuerza bruta
 def login():
     try:
-        print("Recibida solicitud de login")
+        # Solo registrar que se recibió una solicitud sin exponer datos
         data = request.get_json()
         if not data:
-            print("No se recibieron datos JSON")
             return error_response("No se recibieron datos JSON", 400)
             
-        print(f"Datos recibidos: {data}")
         email = data.get('email')
         password = data.get('password')
 
         if not email or not password:
-            print(f"Faltan datos: email={email}, password={'*' * len(password) if password else None}")
             return error_response("Email y contraseña son requeridos", 400)
 
         # Consultar usuario en la base de datos PostgreSQL
@@ -42,7 +39,7 @@ def login():
             user_data = fetch_one_dict_from_result(cursor)
             
             if not user_data:
-                print(f"Usuario no encontrado para el email: {email}")
+                # Eliminamos log de datos sensibles
                 return error_response("Credenciales inválidas", 401)
             
             # Verificar la contraseña
@@ -56,7 +53,7 @@ def login():
                 else:
                     # Si no tiene un formato de hash reconocido, considerarla como inválida
                     # y forzar al usuario a usar "olvidé mi contraseña"
-                    print(f"Contraseña sin formato de hash seguro para usuario: {user_data.get('email')}")
+                    # No mostramos información sensible en logs
                     is_valid = False
                     
                     # Actualizar a un hash aleatorio para invalidar la contraseña antigua
@@ -65,16 +62,16 @@ def login():
                     update_query = "UPDATE users SET password = %s, updated_at = NOW() WHERE id = %s"
                     cursor.execute(update_query, (secure_password, user_data['id']))
                     cursor.connection.commit()
-                    print(f"Contraseña actualizada a formato seguro e invalidada para usuario: {user_data['id']}")
+                    # Eliminamos el log con información sensible
             except Exception as e:
-                print(f"Error al verificar contraseña: {e}")
+                # Registramos error sin mostrar detalles sensibles
                 is_valid = False
                 
             if not is_valid:
-                print("Contraseña incorrecta")
+                # No mostramos detalles sensibles en los logs
                 return error_response("Credenciales inválidas", 401)
         
-        print(f"Usuario encontrado: {user_data}")
+        # Eliminamos log con información del usuario
         
         # Convertir fecha_nacimiento a string si es un objeto date
         if isinstance(user_data.get('fecha_nacimiento'), datetime):
@@ -86,7 +83,7 @@ def login():
         
         # Crear tokens JWT - asegurar que user_id sea string
         user_id_str = str(user_data['id'])
-        print(f"Usuario ID (convertido a string): {user_id_str}")
+        # Eliminamos log de información sensible
         
         # Generar session_id único para esta sesión
         session_id = token_manager.generate_session_id()
