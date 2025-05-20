@@ -13,10 +13,18 @@ from helper.response_utils import success_response, error_response
 from helper.token_manager import TokenManager
 from routes.auth import build_token
 
-# Usando get para evitar errores cuando las variables no están definidas
-GOOGLE_CLIENT_ID = "759420300435-1978tfdvh2ugducrmcd0crspn25u1a31.apps.googleusercontent.com"
-GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET") or os.environ.get("GOOGLE_CLIENT_SECRET")
+# Obtener credenciales de variables de entorno o secrets
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_OAUTH_CLIENT_ID", "759420300435-1978tfdvh2ugducrmcd0crspn25u1a31.apps.googleusercontent.com")
+GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET")
 GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
+
+# Validar credenciales
+if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
+    print("ERROR: Credenciales de Google OAuth no configuradas correctamente")
+    GOOGLE_AUTH_CONFIGURED = False
+else:
+    print(f"Credenciales de Google OAuth configuradas - Client ID: {GOOGLE_CLIENT_ID[:8]}...")
+    GOOGLE_AUTH_CONFIGURED = True
 
 # Configure la URL de redirección usando el dominio de desarrollo de Replit
 def get_replit_domain():
