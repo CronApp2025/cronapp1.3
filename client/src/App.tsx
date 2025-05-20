@@ -5,11 +5,12 @@ import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { useOnboarding } from "@/hooks/use-onboarding";
 import { GoogleOAuthProvider } from '@react-oauth/google';
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import NotFound from "@/pages/not-found";
 import { LoadingScreen } from "@/components/ui/loading-screen";
 import { SettingsFormNew } from "@/components/dashboard/settings/settings-form-new";
 import SettingsOnboardingPage from "@/pages/SettingsOnboardingPage";
+import { apiRequest } from "@/lib/queryClient";
 
 // Components imports
 import { LoginForm } from "@/components/auth/login-form";
@@ -148,92 +149,141 @@ const StandaloneResetPasswordPage = ({ params }: { params: { token: string } }) 
 };
 
 export default function App() {
-  // Simplificamos completamente el manejo - un solo punto de entrada
+  // Estado para controlar si la autenticación de Google está disponible
+  const [googleAuthAvailable, setGoogleAuthAvailable] = useState<boolean>(false);
+  const [isAuthMethodsLoaded, setIsAuthMethodsLoaded] = useState<boolean>(false);
+  
+  // Verificar métodos de autenticación disponibles
+  useEffect(() => {
+    const checkAuthMethods = async () => {
+      try {
+        const response = await apiRequest("GET", "/api/auth/auth-methods", null);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.data) {
+            setGoogleAuthAvailable(!!data.data.google_auth_available);
+          }
+        }
+      } catch (error) {
+        console.error("Error al verificar métodos de autenticación:", error);
+        setGoogleAuthAvailable(false);
+      } finally {
+        setIsAuthMethodsLoaded(true);
+      }
+    };
+    
+    checkAuthMethods();
+  }, []);
+  
+  // Mostrar pantalla de carga mientras verificamos los métodos de autenticación
+  if (!isAuthMethodsLoaded) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-sm text-muted-foreground">Cargando...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Componente condicional para GoogleOAuthProvider
+  const AppWithAuth = () => (
+    <div className="min-h-screen bg-background">
+      <Switch>
+        {/* Las rutas públicas */}
+        <Route path="/login" component={LoginPage} />
+        <Route path="/register" component={RegisterPage} />
+        <Route path="/forgot-password" component={ForgotPasswordPage} />
+        <Route path="/reset-password/:token">
+          {(params) => <ResetPasswordPage params={params} />}
+        </Route>
+        
+        {/* Ruta de onboarding para nuevos usuarios - Acceso directo sin verificación */}
+        <Route path="/onboarding">
+          {() => {
+            return (
+              <div className="flex items-center justify-center min-h-screen p-4 bg-gray-100">
+                <OnboardingFormNew />
+              </div>
+            );
+          }}
+        </Route>
+        
+        {/* Rutas que requieren autenticación */}
+        <Route path="/" component={DashboardPage} />
+        <Route path="/dashboard" component={DashboardPage} />
+        
+        {/* Ruta para editar datos de onboarding */}
+        <Route path="/settings/onboarding" component={SettingsOnboardingPage} />
+        
+        <Route path="/settings">
+          {() => {
+            const { isAuthenticated } = useAuth();
+            if (!isAuthenticated) {
+              return <LoginPage />;
+            }
+            return (
+              <DashboardLayout>
+                <SettingsFormNew />
+              </DashboardLayout>
+            );
+          }}
+        </Route>
+        <Route path="/condiciones">
+          {() => {
+            const { isAuthenticated } = useAuth();
+            if (!isAuthenticated) {
+              return <LoginPage />;
+            }
+            return <ConditionsPage />;
+          }}
+        </Route>
+        <Route path="/pacientes">
+          {() => {
+            console.log("Renderizando ruta /pacientes");
+            // No verificamos autenticación temporalmente para pruebas
+            // const { isAuthenticated } = useAuth();
+            // if (!isAuthenticated) {
+            //   return <LoginPage />;
+            // }
+            return <PatientsPage />;
+          }}
+        </Route>
+        <Route path="/paciente/:id">
+          {(params) => {
+            console.log("Renderizando ruta /paciente/:id con params:", params);
+            // No verificamos autenticación temporalmente para pruebas
+            // const { isAuthenticated } = useAuth();
+            // if (!isAuthenticated) {
+            //   return <LoginPage />;
+            // }
+            return <PatientDetailPage params={params} />;
+          }}
+        </Route>
+
+        
+        {/* Ruta para manejar 404s */}
+        <Route component={NotFound} />
+      </Switch>
+      <Toaster />
+    </div>
+  );
+
+  // Renderizar con o sin GoogleOAuthProvider según disponibilidad
   return (
     <QueryClientProvider client={queryClient}>
-      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ''}>
+      {googleAuthAvailable ? (
+        <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ''}>
+          <AuthProvider>
+            <AppWithAuth />
+          </AuthProvider>
+        </GoogleOAuthProvider>
+      ) : (
         <AuthProvider>
-          <div className="min-h-screen bg-background">
-            <Switch>
-              {/* Las rutas públicas */}
-              <Route path="/login" component={LoginPage} />
-              <Route path="/register" component={RegisterPage} />
-              <Route path="/forgot-password" component={ForgotPasswordPage} />
-              <Route path="/reset-password/:token">
-                {(params) => <ResetPasswordPage params={params} />}
-              </Route>
-              
-              {/* Ruta de onboarding para nuevos usuarios - Acceso directo sin verificación */}
-              <Route path="/onboarding">
-                {() => {
-                  return (
-                    <div className="flex items-center justify-center min-h-screen p-4 bg-gray-100">
-                      <OnboardingFormNew />
-                    </div>
-                  );
-                }}
-              </Route>
-              
-              {/* Rutas que requieren autenticación */}
-              <Route path="/" component={DashboardPage} />
-              <Route path="/dashboard" component={DashboardPage} />
-              
-              {/* Ruta para editar datos de onboarding */}
-              <Route path="/settings/onboarding" component={SettingsOnboardingPage} />
-              
-              <Route path="/settings">
-                {() => {
-                  const { isAuthenticated } = useAuth();
-                  if (!isAuthenticated) {
-                    return <LoginPage />;
-                  }
-                  return (
-                    <DashboardLayout>
-                      <SettingsFormNew />
-                    </DashboardLayout>
-                  );
-                }}
-              </Route>
-              <Route path="/condiciones">
-                {() => {
-                  const { isAuthenticated } = useAuth();
-                  if (!isAuthenticated) {
-                    return <LoginPage />;
-                  }
-                  return <ConditionsPage />;
-                }}
-              </Route>
-              <Route path="/pacientes">
-                {() => {
-                  console.log("Renderizando ruta /pacientes");
-                  // No verificamos autenticación temporalmente para pruebas
-                  // const { isAuthenticated } = useAuth();
-                  // if (!isAuthenticated) {
-                  //   return <LoginPage />;
-                  // }
-                  return <PatientsPage />;
-                }}
-              </Route>
-              <Route path="/paciente/:id">
-                {(params) => {
-                  console.log("Renderizando ruta /paciente/:id con params:", params);
-                  // No verificamos autenticación temporalmente para pruebas
-                  // const { isAuthenticated } = useAuth();
-                  // if (!isAuthenticated) {
-                  //   return <LoginPage />;
-                  // }
-                  return <PatientDetailPage params={params} />;
-                }}
-              </Route>
-
-              
-              {/* Ruta para manejar 404s */}
-              <Route component={NotFound} />
-            </Switch>
-            <Toaster />
-          </div>
+          <AppWithAuth />
         </AuthProvider>
-      </GoogleOAuthProvider>
+      )}
     </QueryClientProvider>
   );
 }

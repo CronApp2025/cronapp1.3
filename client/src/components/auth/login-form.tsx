@@ -21,7 +21,16 @@ import {
   Loader2,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
-import { useGoogleLogin } from "@react-oauth/google";
+import { apiRequest } from "@/lib/queryClient";
+
+// Importación condicional para evitar errores
+let useGoogleLogin: any = null;
+try {
+  // Intentamos importar dinámicamente
+  ({ useGoogleLogin } = require("@react-oauth/google"));
+} catch (error) {
+  console.warn("Google OAuth no está disponible", error);
+}
 
 const formSchema = z.object({
   email: z.string().email({
@@ -37,6 +46,27 @@ export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [googleAuthAvailable, setGoogleAuthAvailable] = useState(false);
+  
+  // Verificar si la autenticación de Google está disponible
+  useEffect(() => {
+    const checkGoogleAuthStatus = async () => {
+      try {
+        const response = await apiRequest("GET", "/api/auth/auth-methods", null);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.data) {
+            setGoogleAuthAvailable(!!data.data.google_auth_available);
+          }
+        }
+      } catch (error) {
+        console.error("Error al verificar los métodos de autenticación:", error);
+        setGoogleAuthAvailable(false);
+      }
+    };
+    
+    checkGoogleAuthStatus();
+  }, []);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -60,7 +90,8 @@ export function LoginForm() {
     }
   }
 
-  const googleLogin = useGoogleLogin({
+  // Solo definir googleLogin si la autenticación de Google está disponible y useGoogleLogin existe
+  const googleLogin = googleAuthAvailable && useGoogleLogin ? useGoogleLogin({
     onSuccess: async (tokenResponse: any) => {
       try {
         const userInfoResponse = await fetch(
@@ -97,7 +128,7 @@ export function LoginForm() {
       console.log("Ventana de autenticación de Google cerrada por el usuario");
       setIsGoogleLoading(false);
     },
-  });
+  }) : null;
 
   useEffect(() => {
     return () => {
@@ -108,6 +139,11 @@ export function LoginForm() {
   }, [isGoogleLoading]);
 
   const handleGoogleLogin = () => {
+    if (!googleLogin) {
+      console.error("Google login no está disponible");
+      return;
+    }
+    
     try {
       setIsGoogleLoading(true);
       googleLogin();
