@@ -169,32 +169,36 @@ export function LoginForm() {
           onSubmit={form.handleSubmit(onSubmit)}
           className="space-y-4 w-full"
         >
-          {/* Google Sign In Button */}
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full flex items-center justify-center gap-2 border-primary text-primary hover:bg-secondary"
-            onClick={handleGoogleLogin}
-            disabled={isGoogleLoading}
-          >
-            {isGoogleLoading ? (
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            ) : (
-              <img
-                src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-                alt="Google logo"
-                className="w-5 h-5"
-              />
-            )}
-            <span>{isGoogleLoading ? "Procesando..." : "Ingresar con Google"}</span>
-          </Button>
+          {/* Google Sign In Button - Solo mostrar si la autenticación está disponible */}
+          {googleAuthAvailable && (
+            <>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full flex items-center justify-center gap-2 border-primary text-primary hover:bg-secondary"
+                onClick={handleGoogleLogin}
+                disabled={isGoogleLoading}
+              >
+                {isGoogleLoading ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <img
+                    src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                    alt="Google logo"
+                    className="w-5 h-5"
+                  />
+                )}
+                <span>{isGoogleLoading ? "Procesando..." : "Ingresar con Google"}</span>
+              </Button>
 
-          {/* Divisor mejorado con límites correctos */}
-          <div className="py-3 flex items-center justify-center gap-3 my-2">
-            <div className="h-px bg-muted/40 flex-1 max-w-[80px]"></div>
-            <span className="text-sm text-muted">o continúa con</span>
-            <div className="h-px bg-muted/40 flex-1 max-w-[80px]"></div>
-          </div>
+              {/* Divisor mejorado con límites correctos */}
+              <div className="py-3 flex items-center justify-center gap-3 my-2">
+                <div className="h-px bg-muted/40 flex-1 max-w-[80px]"></div>
+                <span className="text-sm text-muted">o continúa con</span>
+                <div className="h-px bg-muted/40 flex-1 max-w-[80px]"></div>
+              </div>
+            </>
+          )}
 
           {/* Email Input */}
           <FormField
