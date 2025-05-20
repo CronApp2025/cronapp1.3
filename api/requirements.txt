@@ -5,3 +5,4 @@ flask-mail
 mysql-connector-python
 pyjwt
 werkzeug
+python-dotenv
