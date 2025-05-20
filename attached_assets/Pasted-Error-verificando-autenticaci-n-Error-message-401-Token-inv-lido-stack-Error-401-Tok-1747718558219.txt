@@ -1,0 +1,75 @@
+Error verificando autenticación: 
+Error {}
+message: "401: Token inválido"
+stack: "Error: 401: Token inválido↵ at tC (https://ae028345-db69-4fdd-ab8d-9b341f98c8ed-00-1e25tgaegnwew.spock.replit.dev/assets/index-BEpULEiQ.js:48:43182)↵ at async yn (https://ae028345-db69-4fdd-ab8d-9b341f98c8ed-00-1e25tgaegnwew.spock.replit.dev/assets/index-BEpULEiQ.js:48:43546)↵ at async i (https://ae028345-db69-4fdd-ab8d-9b341f98c8ed-00-1e25tgaegnwew.spock.replit.dev/assets/index-BEpULEiQ.js:323:23994)"
+get stack: ƒ ()
+set stack: ƒ ()
+[[Prototype]]: Object
+constructor: ƒ Error()
+message: "401: Token inválido"
+name: "Error"
+toString: ƒ toString()
+length: 0
+name: "toString"
+[[Prototype]]: ƒ ()
+apply: ƒ apply()
+arguments: "'caller', 'callee', and 'arguments' properties may not be accessed on strict mode functions or the arguments objects for calls to them"
+get arguments: ƒ ()
+set arguments: ƒ ()
+bind: ƒ bind()
+call: ƒ call()
+caller: "'caller', 'callee', and 'arguments' properties may not be accessed on strict mode functions or the arguments objects for calls to them"
+get caller: ƒ ()
+length: 0
+name: ""
+[[Prototype]]: ƒ ()
+set caller: ƒ ()
+length: 0
+name: ""
+[[Prototype]]: ƒ ()
+apply: ƒ apply()
+arguments: "'caller', 'callee', and 'arguments' properties may not be accessed on strict mode functions or the arguments objects for calls to them"
+get arguments: ƒ ()
+set arguments: ƒ ()
+bind: ƒ bind()
+call: ƒ call()
+caller: "'caller', 'callee', and 'arguments' properties may not be accessed on strict mode functions or the arguments objects for calls to them"
+get caller: ƒ ()
+set caller: ƒ ()
+constructor: ƒ Function()
+length: 0
+name: "toString"
+toString: ƒ toString()
+Symbol(Symbol.hasInstance): undefined
+[[Prototype]]: Object
+constructor: ƒ Function()
+length: 1
+name: "Function"
+prototype: ƒ ()
+[[Prototype]]: ƒ ()
+length: 0
+name: "toString"
+toString: ƒ toString()
+Symbol(Symbol.hasInstance): undefined
+[[Prototype]]: Object
+constructor: ƒ Error()
+hasOwnProperty: ƒ hasOwnProperty()
+isPrototypeOf: ƒ isPrototypeOf()
+propertyIsEnumerable: ƒ propertyIsEnumerable()
+toLocaleString: ƒ toLocaleString()
+toString: ƒ toString()
+valueOf: ƒ valueOf()
+__defineGetter__: ƒ __defineGetter__()
+__defineSetter__: ƒ __defineSetter__()
+__lookupGetter__: ƒ __lookupGetter__()
+__lookupSetter__: ƒ __lookupSetter__()
+__proto__: Object
+get __proto__: ƒ get __proto__()
+set __proto__: ƒ set __proto__()
+[[Prototype]]: Object
+
+at t.value (https://ae028345-db69-4fdd-ab8d-9b341f98c8ed-00-1e25tgaegnwew.spock.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://ae028345-db69-4fdd-ab8d-9b341f98c8ed-00-1e25tgaegnwew.spock.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://ae028345-db69-4fdd-ab8d-9b341f98c8ed-00-1e25tgaegnwew.spock.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://ae028345-db69-4fdd-ab8d-9b341f98c8ed-00-1e25tgaegnwew.spock.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
+Haciendo petición POST a https://ae028345-db69-4fdd-ab8d-9b341f98c8ed-00-1e25tgaegnwew.spock.replit.dev/api/auth/logout
