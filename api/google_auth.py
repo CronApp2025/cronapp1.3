@@ -4,9 +4,8 @@ import json
 import os
 
 import requests
-from flask import Blueprint, redirect, request, url_for
+from flask import Blueprint, redirect, request, url_for, make_response
 from flask_login import login_required, login_user, logout_user
-from oauthlib.oauth2 import WebApplicationClient
 from werkzeug.security import generate_password_hash
 
 from helper.database import get_db_cursor, fetch_one_dict_from_result
