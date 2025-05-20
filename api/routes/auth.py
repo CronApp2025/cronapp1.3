@@ -11,20 +11,26 @@ from helper.response_utils import success_response, error_response
 from helper.transaction import db_transaction
 from flask_jwt_extended import get_jwt, verify_jwt_in_request
 from helper.token_manager import token_manager
+import os
+
+# Obtener las credenciales de Google de las variables de entorno o secrets
+GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_OAUTH_CLIENT_ID', "759420300435-1978tfdvh2ugducrmcd0crspn25u1a31.apps.googleusercontent.com")
+GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_OAUTH_CLIENT_SECRET')
+
 # Verificar si la autenticación de Google está habilitada
-# Valor predeterminado: False (deshabilitado)
-GOOGLE_AUTH_CONFIGURED = False
+GOOGLE_AUTH_CONFIGURED = bool(GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET)
+
 try:
-    import sys, os
+    import sys
     from pathlib import Path
-    # Importación opcional
     module_path = Path(__file__).parent.parent
     if module_path not in sys.path:
         sys.path.append(str(module_path))
-    from google_auth import GOOGLE_AUTH_CONFIGURED
+    from google_auth import GOOGLE_AUTH_CONFIGURED as google_auth_module_configured
+    if google_auth_module_configured:
+        print("Autenticación con Google configurada desde el módulo google_auth")
 except ImportError:
-    print("No se pudo importar la configuración de Google Auth. La autenticación con Google estará deshabilitada.")
-    GOOGLE_AUTH_CONFIGURED = False
+    print("No se pudo importar la configuración de Google Auth. Usando configuración local.")
 
 auth = Blueprint('auth', __name__)
 
