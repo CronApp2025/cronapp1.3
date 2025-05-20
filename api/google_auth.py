@@ -64,8 +64,17 @@ La autenticación con Google está actualmente DESHABILITADA.
 else:
     print(f"Autenticación con Google configurada correctamente.")
 
-# Solo inicializar el cliente si las credenciales están configuradas
-client = WebApplicationClient(GOOGLE_CLIENT_ID) if GOOGLE_AUTH_CONFIGURED else None
+# Importamos WebApplicationClient solo si la autenticación está configurada
+if GOOGLE_AUTH_CONFIGURED:
+    try:
+        from oauthlib.oauth2 import WebApplicationClient
+        client = WebApplicationClient(GOOGLE_CLIENT_ID)
+    except ImportError:
+        print("Error al importar oauthlib.oauth2.WebApplicationClient")
+        GOOGLE_AUTH_CONFIGURED = False
+        client = None
+else:
+    client = None
 
 google_auth = Blueprint("google_auth", __name__, url_prefix="/api/google_auth")
 
