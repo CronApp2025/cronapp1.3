@@ -1,22 +1,8 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Switch } from "@/components/ui/switch";
-import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
-import { Progress } from "@/components/ui/progress";
-import { CalendarIcon } from "lucide-react";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { cn } from "@/lib/utils";
 
 // Definimos las etapas del formulario
 enum FormStage {
@@ -152,13 +138,13 @@ export function OnboardingForm() {
       case FormStage.PlanAlimenticio:
         return (
           <div className="space-y-6">
-            <CardHeader>
-              <CardTitle className="text-2xl text-center text-primary">Plan Alimenticio</CardTitle>
-              <CardDescription className="text-center pt-2">
+            <div className="text-center pb-4">
+              <h2 className="text-2xl font-medium text-blue-600">Plan Alimenticio</h2>
+              <p className="text-gray-600 pt-2">
                 Cuéntanos sobre tus hábitos alimenticios para personalizar tu plan
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-8">
+              </p>
+            </div>
+            <div className="space-y-8">
               <div className="space-y-4">
                 <Label className="text-base">
                   ¿Cuántos días de los últimos 7 has consumido al menos 2 porciones de frutas?
@@ -235,7 +221,7 @@ export function OnboardingForm() {
               </div>
 
               <Button onClick={handleNextStage} className="w-full">Continuar</Button>
-            </CardContent>
+            </div>
           </div>
         );
 
@@ -634,21 +620,26 @@ export function OnboardingForm() {
 
   return (
     <div className="w-full max-w-3xl mx-auto">
-      <Card className="border-0 shadow-md bg-card/95 transition-all duration-200">
+      <div className="border rounded-lg shadow-lg overflow-hidden bg-white">
         <div className="p-4">
-          <Progress value={progress} className="h-2 bg-muted/30" />
+          <div className="bg-gray-200 rounded-full h-2 w-full overflow-hidden">
+            <div 
+              className="bg-blue-500 h-2 rounded-full transition-all duration-500 ease-in-out" 
+              style={{ width: `${progress}%` }}
+            ></div>
+          </div>
         </div>
         <div className="relative overflow-hidden">
           {/* Fondo decorativo sutil */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mt-12 -mr-12 z-0"></div>
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-secondary/5 rounded-full -mb-8 -ml-8 z-0"></div>
+          <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50 rounded-full -mt-12 -mr-12 z-0"></div>
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-green-50 rounded-full -mb-8 -ml-8 z-0"></div>
           
           {/* Contenido del formulario */}
-          <div className="relative z-10">
+          <div className="relative z-10 p-6">
             {renderStage()}
           </div>
         </div>
-      </Card>
+      </div>
     </div>
   );
 }

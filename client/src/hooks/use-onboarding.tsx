@@ -17,7 +17,7 @@ export function useOnboarding() {
     queryKey: ["onboarding-status", user?.id],
     queryFn: async () => {
       try {
-        const response = await apiRequest("GET", "/api/settings/onboarding/status", null, {
+        const response = await apiRequest("GET", "/api/onboarding/status", null, {
           credentials: 'include'
         });
         

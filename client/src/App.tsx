@@ -16,6 +16,8 @@ import { RegisterForm } from "@/components/auth/register-form";
 import { ForgotPasswordForm } from "@/components/auth/forgot-password-form";
 import { ResetPasswordForm } from "@/components/auth/reset-password-form";
 import { OnboardingForm } from "@/components/auth/onboarding-form";
+import { OnboardingFormSimple } from "@/components/auth/onboarding-form-simple";
+import { OnboardingFormNew } from "@/components/auth/onboarding-form-new";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { PatientProfile } from "@/components/dashboard/PatientProfile";
 import { RiskMonitoring } from "@/components/dashboard/RiskMonitoring";
@@ -160,35 +162,12 @@ export default function App() {
                 {(params) => <ResetPasswordPage params={params} />}
               </Route>
               
-              {/* Ruta de onboarding para nuevos usuarios */}
+              {/* Ruta de onboarding para nuevos usuarios - Acceso directo sin verificación */}
               <Route path="/onboarding">
                 {() => {
-                  const { isAuthenticated, isLoading } = useAuth();
-                  const { hasCompletedOnboarding, isCheckingOnboardingStatus } = useOnboarding();
-                  const [, navigate] = useLocation();
-                  
-                  // Si no está autenticado, redirigir al login
-                  if (!isAuthenticated && !isLoading) {
-                    return <LoginPage />;
-                  }
-                  
-                  // Si está autenticado y ya completó el onboarding, redirigir al dashboard
-                  if (isAuthenticated && !isCheckingOnboardingStatus && hasCompletedOnboarding) {
-                    useEffect(() => {
-                      navigate('/dashboard');
-                    }, []);
-                    return <LoadingScreen />;
-                  }
-                  
-                  // Mientras carga, mostrar pantalla de carga
-                  if (isLoading || isCheckingOnboardingStatus) {
-                    return <LoadingScreen />;
-                  }
-                  
-                  // Si está autenticado pero no ha completado el onboarding, mostrar el formulario
                   return (
-                    <div className="flex items-center justify-center min-h-screen p-4 bg-neutral">
-                      <OnboardingForm />
+                    <div className="flex items-center justify-center min-h-screen p-4 bg-gray-100">
+                      <OnboardingFormNew />
                     </div>
                   );
                 }}
