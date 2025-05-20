@@ -115,14 +115,25 @@ export default function SettingsOnboardingPage() {
         genero: onboardingData.datos_personales.genero
       };
       
+      // Obtener el token CSRF del cookie
+      const getCookie = (name: string) => {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop()?.split(';').shift();
+        return undefined;
+      };
+      
+      const csrfToken = getCookie('csrf_access_token');
+      
       // Usar la ruta específica para actualizar desde configuración
       const response = await fetch('/api/settings/onboarding', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': csrfToken || '' // Incluir el token CSRF en el encabezado
         },
         body: JSON.stringify(dataToSend),
-        credentials: 'include'
+        credentials: 'include' // Importante para enviar cookies
       });
       
       if (response.ok) {

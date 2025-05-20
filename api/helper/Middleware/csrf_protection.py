@@ -71,9 +71,9 @@ def setup_csrf_protection(app):
     # Configurar protección CSRF para todas las rutas modificadoras de estado
     @app.before_request
     def csrf_protect_all():
-        # Excluir métodos GET, HEAD, OPTIONS y ciertas rutas (como login, Google auth)
+        # Excluir métodos GET, HEAD, OPTIONS y ciertas rutas (como login, Google auth, onboarding settings)
         if request.method not in ['GET', 'HEAD', 'OPTIONS'] and \
-           request.path not in ['/api/auth/login', '/api/auth/google', '/api/register/']:
+           request.path not in ['/api/auth/login', '/api/auth/google', '/api/register/', '/api/settings/onboarding']:
             token = session.get('csrf_token')
             
             # Verificar token desde encabezado o datos del formulario

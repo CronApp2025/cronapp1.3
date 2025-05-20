@@ -20,7 +20,7 @@ onboarding_bp = Blueprint('onboarding', __name__)
 
 # Ruta específica para actualizar datos desde configuración
 @onboarding_bp.route('/settings/onboarding', methods=['POST'])
-@jwt_required(csrf_protect=False)  # Deshabilitamos protección CSRF para esta ruta específica
+@jwt_required()  # Mantenemos la protección para garantizar la seguridad
 def update_onboarding_settings():
     """Actualiza los datos de onboarding desde la página de configuración"""
     # Usamos la misma lógica que save_onboarding
