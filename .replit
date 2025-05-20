@@ -1,0 +1,61 @@
+modules = ["nodejs-20", "python-3.11", "web", "postgresql-16", "python3"]
+run = "npm run dev"
+hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
+
+[nix]
+channel = "stable-24_05"
+packages = ["jq", "unrar", "wget"]
+
+[deployment]
+deploymentTarget = "autoscale"
+run = ["sh", "-c", "python api/app.py"]
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[[ports]]
+localPort = 5001
+externalPort = 3000
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start application"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Setup Project"
+
+[[workflows.workflow]]
+name = "Start application"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python api/app.py"
+waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Start App"
+author = 42402573
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd client && npm run build && cd .. && PYTHONPATH=/home/runner/workspace python api/app.py"
+
+[[workflows.workflow]]
+name = "Setup Project"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pip install -r api/requirements.txt && npm install"
