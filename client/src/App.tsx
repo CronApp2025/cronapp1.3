@@ -271,10 +271,13 @@ export default function App() {
   );
 
   // Renderizar con o sin GoogleOAuthProvider según disponibilidad
+  // Client ID hardcodeado temporalmente para desarrollo
+  const GOOGLE_CLIENT_ID = "759420300435-1978tfdvh2ugducrmcd0crspn25u1a31.apps.googleusercontent.com";
+  
   return (
     <QueryClientProvider client={queryClient}>
       {googleAuthAvailable ? (
-        <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ''}>
+        <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
           <AuthProvider>
             <AppWithAuth />
           </AuthProvider>
