@@ -44,6 +44,9 @@ def get_replit_domain():
 REPLIT_DOMAIN = get_replit_domain()
 DEV_REDIRECT_URL = f'{REPLIT_DOMAIN}/api/google_auth/callback'
 
+# Verificar si las credenciales de Google están configuradas
+GOOGLE_AUTH_CONFIGURED = GOOGLE_CLIENT_ID != "not-configured" and GOOGLE_CLIENT_SECRET != "not-configured"
+
 print(f"""Para hacer que la autenticación con Google funcione:
 1. Ve a https://console.cloud.google.com/apis/credentials
 2. Crea un nuevo OAuth 2.0 Client ID
@@ -53,7 +56,10 @@ Para instrucciones detalladas, consulta:
 https://docs.replit.com/additional-resources/google-auth-in-flask#set-up-your-oauth-app--client
 """)
 
-client = WebApplicationClient(GOOGLE_CLIENT_ID)
+# Solo inicializar el cliente si las credenciales están configuradas
+client = None
+if GOOGLE_AUTH_CONFIGURED:
+    client = WebApplicationClient(GOOGLE_CLIENT_ID)
 
 google_auth = Blueprint("google_auth", __name__, url_prefix="/api/google_auth")
 

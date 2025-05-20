@@ -1,0 +1,14 @@
+Haciendo petición GET a https://ae028345-db69-4fdd-ab8d-9b341f98c8ed-00-1e25tgaegnwew.spock.replit.dev/api/auth/validate
+api/auth/validate:1 
+            
+            
+           Failed to load resource: the server responded with a status of 401 (Unauthorized)
+index-DozIvbQ2.js:323 Error verificando autenticación: Error: 401: Token inválido
+    at tC (index-DozIvbQ2.js:48:43182)
+    at async yn (index-DozIvbQ2.js:48:43546)
+    at async i (index-DozIvbQ2.js:323:23994)
+i @ index-DozIvbQ2.js:323
+index-DozIvbQ2.js:48 Haciendo petición POST a https://ae028345-db69-4fdd-ab8d-9b341f98c8ed-00-1e25tgaegnwew.spock.replit.dev/api/auth/logout
+index-DozIvbQ2.js:40 _.ycmessage: "Missing required parameter client_id."stack: "Error: Missing required parameter client_id.\n    at new _.yc (https://accounts.google.com/gsi/client:83:28)\n    at _.zc (https://accounts.google.com/gsi/client:76:42)\n    at _.ff (https://accounts.google.com/gsi/client:113:346)\n    at new jt (https://accounts.google.com/gsi/client:353:452)\n    at Object.initTokenClient (https://accounts.google.com/gsi/client:357:773)\n    at https://ae028345-db69-4fdd-ab8d-9b341f98c8ed-00-1e25tgaegnwew.spock.replit.dev/assets/index-DozIvbQ2.js:323:30512\n    at jf (https://ae028345-db69-4fdd-ab8d-9b341f98c8ed-00-1e25tgaegnwew.spock.replit.dev/assets/index-DozIvbQ2.js:40:24272)\n    at Xo (https://ae028345-db69-4fdd-ab8d-9b341f98c8ed-00-1e25tgaegnwew.spock.replit.dev/assets/index-DozIvbQ2.js:40:42382)\n    at https://ae028345-db69-4fdd-ab8d-9b341f98c8ed-00-1e25tgaegnwew.spock.replit.dev/assets/index-DozIvbQ2.js:40:40700\n    at j (https://ae028345-db69-4fdd-ab8d-9b341f98c8ed-00-1e25tgaegnwew.spock.replit.dev/assets/index-DozIvbQ2.js:25:1562)"type: "missing_required_parameter"[[Prototype]]: Error
+rp @ index-DozIvbQ2.js:40
+index-DozIvbQ2.js:38 Uncaught _.ycmessage: "Missing required parameter client_id."stack: "Error: Missing required parameter client_id.\n    at new _.yc (https://accounts.google.com/gsi/client:83:28)\n    at _.zc (https://accounts.google.com/gsi/client:76:42)\n    at _.ff (https://accounts.google.com/gsi/client:113:346)\n    at new jt (https://accounts.google.com/gsi/client:353:452)\n    at Object.initTokenClient (https://accounts.google.com/gsi/client:357:773)\n    at https://ae028345-db69-4fdd-ab8d-9b341f98c8ed-00-1e25tgaegnwew.spock.replit.dev/assets/index-DozIvbQ2.js:323:30512\n    at jf (https://ae028345-db69-4fdd-ab8d-9b341f98c8ed-00-1e25tgaegnwew.spock.replit.dev/assets/index-DozIvbQ2.js:40:24272)\n    at Xo (https://ae028345-db69-4fdd-ab8d-9b341f98c8ed-00-1e25tgaegnwew.spock.replit.dev/assets/index-DozIvbQ2.js:40:42382)\n    at https://ae028345-db69-4fdd-ab8d-9b341f98c8ed-00-1e25tgaegnwew.spock.replit.dev/assets/index-DozIvbQ2.js:40:40700\n    at j (https://ae028345-db69-4fdd-ab8d-9b341f98c8ed-00-1e25tgaegnwew.spock.replit.dev/assets/index-DozIvbQ2.js:25:1562)"type: "missing_required_parameter"[[Prototype]]: Error
