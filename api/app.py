@@ -37,8 +37,10 @@ cors_config = {
     "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     "allow_headers": ["Content-Type", "Authorization", "X-Requested-With", "X-CSRF-TOKEN"],
     "supports_credentials": True,  # Importante para permitir cookies y autenticación
-    "expose_headers": ["Content-Type", "X-CSRFToken"]
+    "expose_headers": ["Content-Type", "X-CSRFToken"],
+    "vary_header": True
 }
+# Aplicar CORS a toda la aplicación
 CORS(app, resources={r"/*": cors_config})
 
 # Importar y configurar nuestro propio rate limiter
@@ -101,8 +103,9 @@ app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=EXPIRE_TOKEN_TIME["REFR
 app.config['JWT_TOKEN_LOCATION'] = ['cookies', 'headers']  # Usar cookies y headers para mayor compatibilidad
 app.config['JWT_COOKIE_SECURE'] = False  # False para desarrollo en Replit
 app.config['JWT_COOKIE_CSRF_PROTECT'] = False  # Desactivado para solucionar problemas en desarrollo
-app.config['JWT_COOKIE_SAMESITE'] = None  # None permite cookies cross-site en desarrollo
+app.config['JWT_COOKIE_SAMESITE'] = 'None'  # 'None' permite cookies cross-site en desarrollo
 app.config['JWT_COOKIE_DOMAIN'] = None  # Solo dominio actual
+app.config['JWT_CSRF_CHECK_FORM'] = False  # Desactivar verificación CSRF para desarrollo
 app.config['JWT_ACCESS_COOKIE_PATH'] = "/"
 app.config['JWT_REFRESH_COOKIE_PATH'] = "/api/auth/refresh"
 app.config['JWT_CSRF_IN_COOKIES'] = False  # Desactivado para desarrollo

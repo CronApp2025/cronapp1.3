@@ -439,68 +439,119 @@ def logout():
         return resp
 
 @auth.route('/validate', methods=['GET', 'POST'])
+@jwt_required_custom(optional=True)
 def validate_token():
     """
     Endpoint para validar token y obtener datos del usuario.
     
-    Para la versión actual, devuelve un usuario demo para propósitos de desarrollo.
+    Tiene dos modos de funcionamiento:
+    1. Si hay un token válido, valida la sesión y devuelve los datos del usuario.
+    2. Si no hay token o es inválido pero estamos en modo desarrollo, crea un usuario demo.
     """
     try:
-        # En desarrollo, creamos un usuario demo para simular la autenticación
-        demo_user = {
-            'id': '1001',
-            'nombre': 'Usuario',
-            'apellido': 'Demo',
-            'email': 'demo@example.com',
-            'fecha_nacimiento': '2000-01-01'
-        }
+        # Intentar obtener JWT del request
+        try:
+            jwt_data = get_jwt() if has_jwt() else None
+            if jwt_data:
+                user_id = jwt_data.get('sub')
+                session_id = jwt_data.get('session_id')
+                print(f"JWT encontrado: user_id={user_id}, session_id={session_id}")
+                
+                if user_id and session_id:
+                    # Verificar si la sesión es válida
+                    if token_manager.validate_session(str(user_id), session_id):
+                        # Buscar datos del usuario en la base de datos
+                        try:
+                            with get_db_cursor(dictionary=True) as cursor:
+                                query = "SELECT id, nombre, apellido, email, fecha_nacimiento FROM users WHERE id = %s"
+                                cursor.execute(query, (user_id,))
+                                user = fetch_one_dict_from_result(cursor)
+                                
+                                if user:
+                                    # Formatear fecha de nacimiento si existe
+                                    if 'fecha_nacimiento' in user and user['fecha_nacimiento']:
+                                        if isinstance(user['fecha_nacimiento'], datetime):
+                                            user['fecha_nacimiento'] = user['fecha_nacimiento'].strftime('%Y-%m-%d')
+                                    
+                                    return success_response(data={
+                                        'valid': True,
+                                        'user': user,
+                                        'session_id': session_id
+                                    })
+                        except Exception as db_error:
+                            print(f"Error al buscar usuario en BD: {str(db_error)}")
+                            # Si hay error de BD pero estamos autenticados, seguimos con usuario genérico
+                            # para no interrumpir la sesión del usuario
+            
+            # Si llegamos aquí, no hay token válido o hubo error de BD
+        except Exception as jwt_error:
+            print(f"Error al procesar JWT: {str(jwt_error)}")
         
-        # Crear sesión demo
-        session_id = token_manager.generate_session_id()
+        # En modo desarrollo, permitimos acceso con usuario demo
+        if app.debug:
+            print("Modo desarrollo: Creando usuario demo")
+            demo_user = {
+                'id': '1001',
+                'nombre': 'Usuario',
+                'apellido': 'Demo',
+                'email': 'demo@example.com',
+                'fecha_nacimiento': '2000-01-01'
+            }
+            
+            # Crear sesión demo
+            session_id = token_manager.generate_session_id()
+            
+            # Registrar la sesión para tener una experiencia coherente
+            token_manager.register_session('1001', session_id)
+            
+            # Crear token de acceso con session_id
+            access_token, _ = build_token(
+                user_id='1001',
+                additional_claims={
+                    'email': demo_user['email'],
+                    'nombre': demo_user['nombre'],
+                    'apellido': demo_user['apellido'],
+                    'fecha_nacimiento': demo_user['fecha_nacimiento']
+                },
+                session_id=session_id
+            )
+            
+            # Crear token de refresco con la misma session_id
+            refresh_token = create_refresh_token(
+                identity='1001',
+                additional_claims={
+                    'session_id': session_id
+                },
+                expires_delta=timedelta(days=EXPIRE_TOKEN_TIME["REFRESH_TOKEN_DAYS"])
+            )
+            
+            # Simular información de sesión
+            session_info = {
+                'session_id': session_id,
+                'expires_at': (datetime.now() + timedelta(days=EXPIRE_TOKEN_TIME["REFRESH_TOKEN_DAYS"])).isoformat(),
+                'remaining_minutes': EXPIRE_TOKEN_TIME["REFRESH_TOKEN_DAYS"] * 24 * 60
+            }
+            
+            # Devolver respuesta exitosa con cookies de autenticación
+            resp = success_response(data={
+                'valid': True,
+                'user': demo_user,
+                'session': session_info
+            })
+            
+            # Configurar cookies JWT con opciones seguras para desarrollo
+            set_access_cookies(resp, access_token)
+            set_refresh_cookies(resp, refresh_token)
+            
+            # Asegurar que las cabeceras CORS estén correctamente configuradas
+            resp.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin', '*')
+            resp.headers['Access-Control-Allow-Credentials'] = 'true'
+            
+            return resp
         
-        # Registrar la sesión para tener una experiencia coherente
-        token_manager.register_session('1001', session_id)
+        # En producción, si llegamos aquí es que no hay autenticación válida
+        return error_response("No autenticado", 401)
         
-        # Crear token de acceso con session_id
-        access_token, _ = build_token(
-            user_id='1001',
-            additional_claims={
-                'email': demo_user['email'],
-                'nombre': demo_user['nombre'],
-                'apellido': demo_user['apellido'],
-                'fecha_nacimiento': demo_user['fecha_nacimiento']
-            },
-            session_id=session_id
-        )
-        
-        # Crear token de refresco con la misma session_id
-        refresh_token = create_refresh_token(
-            identity='1001',
-            additional_claims={
-                'session_id': session_id
-            },
-            expires_delta=timedelta(days=EXPIRE_TOKEN_TIME["REFRESH_TOKEN_DAYS"])
-        )
-        
-        # Simular información de sesión
-        session_info = {
-            'session_id': session_id,
-            'expires_at': (datetime.now() + timedelta(days=EXPIRE_TOKEN_TIME["REFRESH_TOKEN_DAYS"])).isoformat(),
-            'remaining_minutes': EXPIRE_TOKEN_TIME["REFRESH_TOKEN_DAYS"] * 24 * 60
-        }
-        
-        # Devolver respuesta exitosa con cookies de autenticación
-        resp = success_response(data={
-            'valid': True,
-            'user': demo_user,
-            'session': session_info
-        })
-        
-        # Configurar cookies JWT
-        set_access_cookies(resp, access_token)
-        set_refresh_cookies(resp, refresh_token)
-        
-        return resp
     except Exception as e:
         print(f"Error general en validate_token: {str(e)}")
         return error_response("Error en validación de token", 401)
