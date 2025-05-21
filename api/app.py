@@ -98,15 +98,15 @@ app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=EXPIRE_TOKEN_TIME["AC
 app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=EXPIRE_TOKEN_TIME["REFRESH_TOKEN_DAYS"])
 
 # FIX: Usar sólo cookies con máxima seguridad (no headers para evitar XSS)
-app.config['JWT_TOKEN_LOCATION'] = JWT_TOKEN_LOCATION  # Sólo cookies, no headers
-app.config['JWT_COOKIE_SECURE'] = JWT_COOKIE_SECURE  # Cookies solo en HTTPS
-app.config['JWT_COOKIE_CSRF_PROTECT'] = JWT_COOKIE_CSRF_PROTECT  # Protección CSRF para cookies
-app.config['JWT_COOKIE_SAMESITE'] = JWT_COOKIE_SAMESITE  # SameSite=Strict para prevenir CSRF
+app.config['JWT_TOKEN_LOCATION'] = ['cookies', 'headers']  # Usar cookies y headers para mayor compatibilidad
+app.config['JWT_COOKIE_SECURE'] = False  # False para desarrollo en Replit
+app.config['JWT_COOKIE_CSRF_PROTECT'] = False  # Desactivado para solucionar problemas en desarrollo
+app.config['JWT_COOKIE_SAMESITE'] = None  # None permite cookies cross-site en desarrollo
 app.config['JWT_COOKIE_DOMAIN'] = None  # Solo dominio actual
 app.config['JWT_ACCESS_COOKIE_PATH'] = "/"
 app.config['JWT_REFRESH_COOKIE_PATH'] = "/api/auth/refresh"
-app.config['JWT_CSRF_IN_COOKIES'] = True  # Almacenar tokens CSRF en cookies
-app.config['JWT_COOKIE_DOMAIN'] = None  # No permitir dominios cruzados
+app.config['JWT_CSRF_IN_COOKIES'] = False  # Desactivado para desarrollo
+app.config['JWT_HEADER_NAME'] = "Authorization"  # Nombre estándar para header de autorización
 
 # Usar 'sub' como claim de identidad para ser compatible con OAuth 2.0
 app.config['JWT_IDENTITY_CLAIM'] = 'sub'

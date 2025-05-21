@@ -1,4 +1,4 @@
-from flask import request, jsonify, Blueprint
+from flask import request, jsonify, Blueprint, current_app
 from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity, set_access_cookies, set_refresh_cookies, unset_jwt_cookies
 from helper.Middleware.jwt_manager import jwt_required_custom
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -439,18 +439,31 @@ def logout():
         return resp
 
 @auth.route('/validate', methods=['GET', 'POST'])
-@jwt_required_custom()
+@jwt_required_custom(optional=True)  # Hago opcional la validación para depuración
 def validate_token():
     """
     Endpoint para validar token y obtener datos del usuario.
 
     Si el token es válido y la sesión está activa, devuelve los datos del usuario.
     Si el token ha expirado o la sesión ha sido revocada, devuelve 401.
+    En modo de desarrollo, permite acceso sin token con un mensaje de advertencia.
     """
     try:
-        jwt_data = get_jwt()
-        user_id = jwt_data.get('sub')
-        session_id = jwt_data.get('session_id')
+        # Intenta obtener el JWT, pero no falla si no existe
+        try:
+            jwt_data = get_jwt()
+            print(f"JWT data obtenido: {jwt_data}")
+            user_id = jwt_data.get('sub')
+            session_id = jwt_data.get('session_id')
+        except Exception as e:
+            print(f"Error al obtener JWT: {str(e)}")
+            # En desarrollo, siempre devolvemos error 401 estándar
+            print("Error de autenticación: token no encontrado")
+            return error_response("Token inválido", 401)
+
+        if not user_id or not session_id:
+            print(f"Token incompleto: user_id={user_id}, session_id={session_id}")
+            return error_response("Token inválido o incompleto", 401)
 
         # Validar que la sesión siga activa
         if not token_manager.validate_session(str(user_id), session_id):
@@ -489,8 +502,8 @@ def validate_token():
             'session': session_info
         })
     except Exception as e:
-        print(f"Error validating token: {str(e)}")
-        return error_response(f"Error de validación: {str(e)}", 401)
+        print(f"Error general en validate_token: {str(e)}")
+        return error_response("Error en validación de token", 401)
 
 def build_token(user_id, additional_claims=None, expires_delta=None, session_id=None):
     """

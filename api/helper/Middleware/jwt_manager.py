@@ -9,14 +9,27 @@ def jwt_required_custom(optional=False, refresh=False):
         @wraps(fn)
         def decorator(*args, **kwargs):
             try:
-                verify_jwt_in_request(optional=optional, refresh=refresh)
+                # Configuración más permisiva para depuración
+                verify_jwt_in_request(optional=optional, refresh=refresh, locations=['headers', 'cookies'])
+                
+                # Si es opcional y no hay token, continuamos
+                if optional:
+                    try:
+                        jwt = get_jwt()
+                    except Exception:
+                        print("Modo opcional: continuando sin token")
+                        return fn(*args, **kwargs)
+                
+                # Intentar obtener el token JWT
                 try:
                     jwt = get_jwt()
-                except Exception:
+                except Exception as e:
+                    print(f"Error obteniendo JWT: {str(e)}")
                     if optional:
                         return fn(*args, **kwargs)
-                    return jsonify({"msg": "Token no proporcionado"}), 401
-                    
+                    return jsonify({"msg": "Token no proporcionado o inválido"}), 401
+                
+                # Verificar que exista el token
                 if not jwt and not optional:
                     return jsonify({"msg": "Token no proporcionado"}), 401
                 
@@ -37,6 +50,8 @@ def jwt_required_custom(optional=False, refresh=False):
                         if not token_manager.validate_session(str(user_id), session_id):
                             print(f"Sesión {session_id} inválida para usuario {user_id}")
                             return jsonify({"msg": "Sesión inválida o expirada"}), 401
+                        
+                        print(f"Sesión {session_id} validada correctamente para usuario {user_id}")
                 
                 return fn(*args, **kwargs)
             except Exception as e:
