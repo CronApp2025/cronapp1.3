@@ -13,6 +13,16 @@ from flask_jwt_extended import get_jwt, verify_jwt_in_request
 from helper.token_manager import token_manager
 import os
 
+# Función para verificar si hay un token JWT en la solicitud
+def has_jwt():
+    """Verifica si hay un JWT en la solicitud actual"""
+    try:
+        verify_jwt_in_request(optional=True)
+        jwt_data = get_jwt()
+        return jwt_data is not None
+    except Exception:
+        return False
+
 # Obtener las credenciales de Google de las variables de entorno o secrets
 GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_OAUTH_CLIENT_ID', "759420300435-1978tfdvh2ugducrmcd0crspn25u1a31.apps.googleusercontent.com")
 GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_OAUTH_CLIENT_SECRET')
@@ -488,7 +498,7 @@ def validate_token():
             print(f"Error al procesar JWT: {str(jwt_error)}")
         
         # En modo desarrollo, permitimos acceso con usuario demo
-        if app.debug:
+        if current_app.debug:
             print("Modo desarrollo: Creando usuario demo")
             demo_user = {
                 'id': '1001',
