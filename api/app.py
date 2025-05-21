@@ -224,7 +224,7 @@ app.register_blueprint(recover_password, url_prefix='/api/recover')
 app.register_blueprint(register, url_prefix='/api/register')
 app.register_blueprint(settings, url_prefix='/api')
 app.register_blueprint(patients_bp, url_prefix='/api')
-app.register_blueprint(onboarding_bp, url_prefix='/api/settings')
+app.register_blueprint(onboarding_bp, url_prefix='/api')
 app.register_blueprint(google_auth)
 
 @app.route('/', defaults={'path': ''})
