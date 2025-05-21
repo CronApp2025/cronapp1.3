@@ -108,9 +108,9 @@ const PatientDetailPage = ({ params }: { params: { id: string } }) => (
 const AppRoutes = () => {
   const auth = useAuth();
   const isAuthenticated = auth.isAuthenticated;
+  const [, navigate] = useLocation();
 
-  // Extraemos la lógica de renderización a un componente separado
-  // para evitar problemas con los hooks condicionalmente
+  // Siempre redirigir al login en lugar de onboarding cuando no está autenticado
   const OnboardingRoute = () => {
     // Este hook se llamará siempre, evitando el error #310
     const { isAuthenticated } = useAuth();
@@ -145,7 +145,7 @@ const AppRoutes = () => {
         <Route path="/onboarding" component={OnboardingRoute} />
 
         <Route path="/">
-          {() => renderPrivateRoute(DashboardPage)}
+          {() => <LoginPage />}
         </Route>
 
         <Route path="/dashboard">
