@@ -116,9 +116,9 @@ const PatientDetailPage = ({ params }: { params: { id: string } }) => (
 // Página independiente de reseteo de contraseña que se manejará fuera del contexto de autenticación
 const StandaloneResetPasswordPage = ({ params }: { params: { token: string } }) => {
   const { token } = params;
-  
+
   console.log("Renderizando página de reseteo standalone con token:", token);
-  
+
   if (!token) {
     console.error("No se encontró token en la URL");
     return (
@@ -138,7 +138,7 @@ const StandaloneResetPasswordPage = ({ params }: { params: { token: string } }) 
       </div>
     );
   }
-  
+
   return (
     <div className="flex items-center justify-center min-h-screen p-4 bg-neutral">
       <div className="w-full max-w-md mx-auto">
@@ -152,7 +152,7 @@ export default function App() {
   // Estado para controlar si la autenticación de Google está disponible
   const [googleAuthAvailable, setGoogleAuthAvailable] = useState<boolean>(false);
   const [isAuthMethodsLoaded, setIsAuthMethodsLoaded] = useState<boolean>(false);
-  
+
   // Verificar métodos de autenticación disponibles
   useEffect(() => {
     const checkAuthMethods = async () => {
@@ -171,10 +171,10 @@ export default function App() {
         setIsAuthMethodsLoaded(true);
       }
     };
-    
+
     checkAuthMethods();
   }, []);
-  
+
   // Mostrar pantalla de carga mientras verificamos los métodos de autenticación
   if (!isAuthMethodsLoaded) {
     return (
@@ -198,7 +198,7 @@ export default function App() {
         <Route path="/reset-password/:token">
           {(params) => <ResetPasswordPage params={params} />}
         </Route>
-        
+
         {/* Ruta de onboarding para nuevos usuarios - Acceso directo sin verificación */}
         <Route path="/onboarding">
           {() => {
@@ -209,14 +209,14 @@ export default function App() {
             );
           }}
         </Route>
-        
+
         {/* Rutas que requieren autenticación */}
         <Route path="/" component={DashboardPage} />
         <Route path="/dashboard" component={DashboardPage} />
-        
+
         {/* Ruta para editar datos de onboarding */}
         <Route path="/settings/onboarding" component={SettingsOnboardingPage} />
-        
+
         <Route path="/settings">
           {() => {
             const { isAuthenticated } = useAuth();
@@ -262,7 +262,7 @@ export default function App() {
           }}
         </Route>
 
-        
+
         {/* Ruta para manejar 404s */}
         <Route component={NotFound} />
       </Switch>
@@ -273,14 +273,14 @@ export default function App() {
   // Renderizar con o sin GoogleOAuthProvider según disponibilidad
   // Client ID hardcodeado temporalmente para desarrollo
   const GOOGLE_CLIENT_ID = "759420300435-1978tfdvh2ugducrmcd0crspn25u1a31.apps.googleusercontent.com";
-  
+
   return (
     <QueryClientProvider client={queryClient}>
       <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
         <AuthProvider>
           <AppWithAuth />
+          </AuthProvider>
         </GoogleOAuthProvider>
-      </AuthProvider>
-    </QueryClientProvider>
-  );
+      </QueryClientProvider>
+    );
 }
