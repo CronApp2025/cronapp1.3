@@ -36,14 +36,14 @@ export async function apiRequest(
     "Content-Type": "application/json",
     ...(options?.headers || {})
   };
-  
+
   // Asegurarse de que url comienza con /api
   const fullUrl = url.startsWith("/api") 
     ? `${API_BASE_URL}${url}` 
     : `${API_BASE_URL}/api${url.startsWith("/") ? url : `/${url}`}`;
 
   console.log(`Haciendo petición ${method} a ${fullUrl}`);
-  
+
   const res = await fetch(fullUrl, {
     method,
     headers,
@@ -66,11 +66,11 @@ export const getQueryFn: <T>(options: {
     const fullUrl = url.startsWith("/api") 
       ? `${API_BASE_URL}${url}` 
       : `${API_BASE_URL}/api${url.startsWith("/") ? url : `/${url}`}`;
-    
+
     // Ya no necesitamos obtener el token manualmente del localStorage
     // ya que se manejarán mediante cookies HttpOnly
     const headers: Record<string, string> = {};
-    
+
     console.log(`Haciendo petición GET a ${fullUrl}`);
 
     const res = await fetch(fullUrl, {
