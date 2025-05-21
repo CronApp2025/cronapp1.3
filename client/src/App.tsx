@@ -281,6 +281,6 @@ export default function App() {
           <AppWithAuth />
         </AuthProvider>
       </GoogleOAuthProvider>
-    </QueryClientProvider>ryClientProvider>
+    </QueryClientProvider>
   );
 }
