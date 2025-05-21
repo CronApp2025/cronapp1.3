@@ -175,26 +175,39 @@ const AppRoutes = () => {
 
 const AppWithProviders = () => {
   const [googleAuthAvailable, setGoogleAuthAvailable] = useState(false);
-  const GOOGLE_CLIENT_ID = "759420300435-1978tfdvh2ugducrmcd0crspn25u1a31.apps.googleusercontent.com";
+  // Definir clientId como variable para evitar recreaciones innecesarias
+  const clientId = "759420300435-1978tfdvh2ugducrmcd0crspn25u1a31.apps.googleusercontent.com";
 
   useEffect(() => {
+    let isMounted = true;
+    
     const checkAuthMethods = async () => {
       try {
         const response = await apiRequest("GET", "/api/auth/auth-methods", null);
-        if (response.ok) {
+        // Solo actualizar el estado si el componente sigue montado
+        if (isMounted && response.ok) {
           const data = await response.json();
           setGoogleAuthAvailable(data.success && data.data?.google_auth_available);
         }
       } catch (error) {
-        console.error("Error checking auth methods:", error);
-        setGoogleAuthAvailable(false);
+        if (isMounted) {
+          console.error("Error checking auth methods:", error);
+          setGoogleAuthAvailable(false);
+        }
       }
     };
+    
     checkAuthMethods();
+    
+    // Función de limpieza para evitar actualizaciones de estado en componentes desmontados
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
+  // Crear elementos separados para evitar recreaciones y problemas de memoria
   return (
-    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+    <GoogleOAuthProvider clientId={clientId}>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <AppRoutes />

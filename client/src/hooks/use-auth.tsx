@@ -1,4 +1,4 @@
-import { useState, useEffect, createContext, useContext, ReactNode } from "react";
+import { useState, useEffect, createContext, useContext, ReactNode, useMemo } from "react";
 import { useLocation } from "wouter";
 import { toast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
