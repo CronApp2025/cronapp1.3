@@ -279,8 +279,8 @@ export default function App() {
       <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
         <AuthProvider>
           <AppWithAuth />
-          </AuthProvider>
-        </GoogleOAuthProvider>
-      </QueryClientProvider>
-    );
+        </AuthProvider>
+      </GoogleOAuthProvider>
+    </QueryClientProvider>
+  );
 }
