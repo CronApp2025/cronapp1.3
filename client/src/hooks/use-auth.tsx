@@ -29,26 +29,56 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Check if user is already logged in
   useEffect(() => {
+    let refreshInterval: NodeJS.Timeout | null = null;
+    let isMounted = true;
+    
     // En lugar de localStorage, verificar la autenticación mediante una petición API
     // Los tokens se manejan automáticamente por el navegador a través de cookies HttpOnly
-    checkAuthStatus()
-      .then(isAuthenticated => {
+    const checkAuth = async () => {
+      try {
+        if (!isMounted) return;
+        
+        const isAuthenticated = await checkAuthStatus();
         if (!isAuthenticated) {
-          handleLogout();
+          setState({
+            user: null,
+            isAuthenticated: false,
+            isLoading: false,
+          });
+          navigate("/login");
         } else {
           // El estado ya se actualiza en checkAuthStatus
-          const refreshInterval = setInterval(() => {
-            // Usado para refrescar la cookie de sesión
-            checkAuthStatus();
-          }, 1000 * 60 * 10); // Cada 10 minutos
-          
-          return () => clearInterval(refreshInterval);
+          if (isMounted) {
+            refreshInterval = setInterval(() => {
+              // Usado para refrescar la cookie de sesión
+              if (isMounted) {
+                checkAuthStatus();
+              }
+            }, 1000 * 60 * 10); // Cada 10 minutos
+          }
         }
-      })
-      .catch(() => {
-        handleLogout();
-      });
-  }, []);
+      } catch (error) {
+        if (isMounted) {
+          setState({
+            user: null,
+            isAuthenticated: false,
+            isLoading: false,
+          });
+          navigate("/login");
+        }
+      }
+    };
+    
+    checkAuth();
+    
+    // Cleanup function
+    return () => {
+      isMounted = false;
+      if (refreshInterval) {
+        clearInterval(refreshInterval);
+      }
+    };
+  }, [navigate]);
   
   // Nueva función para verificar estado de autenticación mediante API
   const checkAuthStatus = async () => {
@@ -310,7 +340,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isLoading: false,
       });
       queryClient.clear();
-      navigate("/login");
+      
+      // Usar setTimeout para evitar problemas de actualización de estado durante renderizado
+      setTimeout(() => {
+        navigate("/login");
+      }, 0);
     }
   };
 

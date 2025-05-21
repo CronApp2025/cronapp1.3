@@ -5,7 +5,8 @@ import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
 export function useOnboarding() {
-  const { user, isAuthenticated, isLoading } = useAuth();
+  const auth = useAuth();
+  const { user, isAuthenticated, isLoading } = auth;
   const [, navigate] = useLocation();
   const [shouldCheck, setShouldCheck] = useState(false);
   
@@ -38,7 +39,7 @@ export function useOnboarding() {
         return { has_completed_onboarding: false };
       }
     },
-    enabled: isAuthenticated && !isLoading && shouldCheck && !hasRedirected,
+    enabled: isAuthenticated === true && isLoading === false && shouldCheck === true && hasRedirected === false,
     refetchOnWindowFocus: false
   });
   
@@ -48,23 +49,25 @@ export function useOnboarding() {
     if (isAuthenticated && !isLoading && !shouldCheck) {
       setShouldCheck(true);
     }
-  }, [isAuthenticated, isLoading]);
+  }, [isAuthenticated, isLoading, shouldCheck]);
   
   // Efecto para redirigir al usuario si no ha completado el onboarding
   useEffect(() => {
-    if (onboardingStatus && !isCheckingStatus && !hasRedirected) {
-      const hasCompleted = onboardingStatus.has_completed_onboarding;
-      
-      // Si estamos en la página de onboarding y ya lo ha completado, redirigir al dashboard
-      if (window.location.pathname === "/onboarding" && hasCompleted) {
-        navigate("/dashboard");
-        setHasRedirected(true);
-      } 
-      // Si no estamos en la página de onboarding y no lo ha completado, redirigir al onboarding
-      else if (window.location.pathname !== "/onboarding" && !hasCompleted) {
-        navigate("/onboarding");
-        setHasRedirected(true);
-      }
+    // Evitamos dependencia circular y ejecuciones innecesarias
+    if (!onboardingStatus || isCheckingStatus || hasRedirected) {
+      return;
+    }
+    
+    const hasCompleted = onboardingStatus.has_completed_onboarding;
+    const currentPath = window.location.pathname;
+    
+    // Solo redirigimos si hay un cambio real necesario
+    if ((currentPath === "/onboarding" && hasCompleted) || 
+        (currentPath !== "/onboarding" && !hasCompleted)) {
+          
+      const redirectPath = hasCompleted ? "/dashboard" : "/onboarding";
+      navigate(redirectPath);
+      setHasRedirected(true);
     }
   }, [onboardingStatus, isCheckingStatus, hasRedirected, navigate]);
   

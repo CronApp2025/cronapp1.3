@@ -106,7 +106,15 @@ const PatientDetailPage = ({ params }: { params: { id: string } }) => (
 );
 
 const AppRoutes = () => {
-  const { isAuthenticated } = useAuth();
+  const auth = useAuth();
+  const isAuthenticated = auth.isAuthenticated;
+
+  const renderPrivateRoute = (Component: React.ComponentType<any>, props?: any) => {
+    if (isAuthenticated) {
+      return <Component {...props} />;
+    }
+    return <LoginPage />;
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -127,35 +135,35 @@ const AppRoutes = () => {
         </Route>
 
         <Route path="/">
-          {() => isAuthenticated ? <DashboardPage /> : <LoginPage />}
+          {() => renderPrivateRoute(DashboardPage)}
         </Route>
 
         <Route path="/dashboard">
-          {() => isAuthenticated ? <DashboardPage /> : <LoginPage />}
+          {() => renderPrivateRoute(DashboardPage)}
         </Route>
 
         <Route path="/settings/onboarding">
-          {() => isAuthenticated ? <SettingsOnboardingPage /> : <LoginPage />}
+          {() => renderPrivateRoute(SettingsOnboardingPage)}
         </Route>
 
         <Route path="/settings">
-          {() => isAuthenticated ? (
+          {() => renderPrivateRoute(() => (
             <DashboardLayout>
               <SettingsFormNew />
             </DashboardLayout>
-          ) : <LoginPage />}
+          ))}
         </Route>
 
         <Route path="/condiciones">
-          {() => isAuthenticated ? <ConditionsPage /> : <LoginPage />}
+          {() => renderPrivateRoute(ConditionsPage)}
         </Route>
 
         <Route path="/pacientes">
-          {() => isAuthenticated ? <PatientsPage /> : <LoginPage />}
+          {() => renderPrivateRoute(PatientsPage)}
         </Route>
 
         <Route path="/paciente/:id">
-          {(params) => isAuthenticated ? <PatientDetailPage params={params} /> : <LoginPage />}
+          {(params) => renderPrivateRoute(PatientDetailPage, {params})}
         </Route>
 
         <Route component={NotFound} />

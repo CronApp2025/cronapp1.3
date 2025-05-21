@@ -23,7 +23,7 @@ localPort = 8080
 externalPort = 8080
 
 [workflows]
-runButton = "Start App"
+runButton = "Project"
 
 [[workflows.workflow]]
 name = "Project"
@@ -32,20 +32,15 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Start application"
+args = "Setup Project"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Setup Project"
-
-[[workflows.workflow]]
-name = "Start application"
-author = "agent"
+args = "Build Client"
 
 [[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python api/app.py"
-waitForPort = 5000
+task = "workflow.run"
+args = "Simple Server"
 
 [[workflows.workflow]]
 name = "Start App"
@@ -63,3 +58,20 @@ author = "agent"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "pip install -r api/requirements.txt && npm install"
+
+[[workflows.workflow]]
+name = "Build Client"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd client && npm run build && echo \"Build completado\""
+
+[[workflows.workflow]]
+name = "Simple Server"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python -m http.server 5000"
+waitForPort = 5000
