@@ -23,8 +23,7 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { apiRequest } from "@/lib/queryClient";
 
-import { useGoogleLogin } from '@react-oauth/google';;
-}
+import { useGoogleLogin } from '@react-oauth/google';
 
 const formSchema = z.object({
   email: z.string().email({
