@@ -1,0 +1,36 @@
+Haciendo petición GET a https://49430edf-14ce-4668-b6bb-81a79a5f25d5-00-39tuv06nttidm.kirk.replit.dev/api/auth/validate
+index-Ffdt0_ke.js:48 Haciendo petición GET a https://49430edf-14ce-4668-b6bb-81a79a5f25d5-00-39tuv06nttidm.kirk.replit.dev/api/auth/auth-methods
+api/auth/validate:1 
+            
+            
+           Failed to load resource: the server responded with a status of 401 (Unauthorized)
+index-Ffdt0_ke.js:323 Error verificando autenticación: Error: 401: Token inválido
+    at nC (index-Ffdt0_ke.js:48:43182)
+    at async Xt (index-Ffdt0_ke.js:48:43568)
+    at async i (index-Ffdt0_ke.js:323:23994)
+i @ index-Ffdt0_ke.js:323
+index-Ffdt0_ke.js:48 Haciendo petición POST a https://49430edf-14ce-4668-b6bb-81a79a5f25d5-00-39tuv06nttidm.kirk.replit.dev/api/auth/logout
+index-Ffdt0_ke.js:48 Haciendo petición GET a https://49430edf-14ce-4668-b6bb-81a79a5f25d5-00-39tuv06nttidm.kirk.replit.dev/api/auth/auth-methods
+index-Ffdt0_ke.js:40 Error: Minified React error #310; visit https://reactjs.org/docs/error-decoder.html?invariant=310 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at Gn (index-Ffdt0_ke.js:38:17593)
+    at Object.HS [as useRef] (index-Ffdt0_ke.js:38:20394)
+    at ke.useRef (index-Ffdt0_ke.js:9:6344)
+    at Q0 (index-Ffdt0_ke.js:323:30212)
+    at u4 (index-Ffdt0_ke.js:323:139495)
+    at iv (index-Ffdt0_ke.js:38:16998)
+    at sp (index-Ffdt0_ke.js:40:3139)
+    at Nj (index-Ffdt0_ke.js:40:44804)
+    at Sj (index-Ffdt0_ke.js:40:39766)
+    at QA (index-Ffdt0_ke.js:40:39694)
+rp @ index-Ffdt0_ke.js:40
+index-Ffdt0_ke.js:40 Uncaught Error: Minified React error #310; visit https://reactjs.org/docs/error-decoder.html?invariant=310 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at Gn (index-Ffdt0_ke.js:38:17593)
+    at Object.HS [as useRef] (index-Ffdt0_ke.js:38:20394)
+    at ke.useRef (index-Ffdt0_ke.js:9:6344)
+    at Q0 (index-Ffdt0_ke.js:323:30212)
+    at u4 (index-Ffdt0_ke.js:323:139495)
+    at iv (index-Ffdt0_ke.js:38:16998)
+    at sp (index-Ffdt0_ke.js:40:3139)
+    at Nj (index-Ffdt0_ke.js:40:44804)
+    at Sj (index-Ffdt0_ke.js:40:39766)
+    at QA (index-Ffdt0_ke.js:40:39694)
