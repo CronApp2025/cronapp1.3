@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { useOnboarding } from "@/hooks/use-onboarding";
 import { GoogleOAuthProvider } from '@react-oauth/google';
-import { useEffect, useState } from "react";
+import { useEffect, useState, memo } from "react";
 import NotFound from "@/pages/not-found";
 import { LoadingScreen } from "@/components/ui/loading-screen";
 import { SettingsFormNew } from "@/components/dashboard/settings/settings-form-new";
@@ -105,33 +105,72 @@ const PatientDetailPage = ({ params }: { params: { id: string } }) => (
   </DashboardLayout>
 );
 
+// Componente para proteger rutas que requieren autenticación
+const PrivateRoute = memo(({ children }: { children: React.ReactNode }) => {
+  const { isAuthenticated } = useAuth();
+  
+  if (isAuthenticated) {
+    return <>{children}</>;
+  }
+  return <LoginPage />;
+});
+
+// Componente específico para la ruta de onboarding
+const OnboardingRoute = memo(() => {
+  const { isAuthenticated } = useAuth();
+  
+  if (isAuthenticated) {
+    return (
+      <div className="flex items-center justify-center min-h-screen p-4 bg-gray-100">
+        <OnboardingFormNew />
+      </div>
+    );
+  }
+  return <LoginPage />;
+});
+
+// Envolver cada página privada en su propio componente para evitar errores de hooks
+const PrivateDashboardPage = memo(() => (
+  <PrivateRoute>
+    <DashboardPage />
+  </PrivateRoute>
+));
+
+const PrivateSettingsOnboardingPage = memo(() => (
+  <PrivateRoute>
+    <SettingsOnboardingPage />
+  </PrivateRoute>
+));
+
+const PrivateSettingsPage = memo(() => (
+  <PrivateRoute>
+    <DashboardLayout>
+      <SettingsFormNew />
+    </DashboardLayout>
+  </PrivateRoute>
+));
+
+const PrivateConditionsPage = memo(() => (
+  <PrivateRoute>
+    <ConditionsPage />
+  </PrivateRoute>
+));
+
+const PrivatePatientsPage = memo(() => (
+  <PrivateRoute>
+    <PatientsPage />
+  </PrivateRoute>
+));
+
+// Un componente específico para la ruta de detalle de paciente que acepta un parámetro
+const PrivatePatientDetailRoute = memo(({ params }: { params: { id: string } }) => (
+  <PrivateRoute>
+    <PatientDetailPage params={params} />
+  </PrivateRoute>
+));
+
+// Componente principal de rutas
 const AppRoutes = () => {
-  const auth = useAuth();
-  const isAuthenticated = auth.isAuthenticated;
-
-  // Extraemos la lógica de renderización a un componente separado
-  // para evitar problemas con los hooks condicionalmente
-  const OnboardingRoute = () => {
-    // Este hook se llamará siempre, evitando el error #310
-    const { isAuthenticated } = useAuth();
-    
-    if (isAuthenticated) {
-      return (
-        <div className="flex items-center justify-center min-h-screen p-4 bg-gray-100">
-          <OnboardingFormNew />
-        </div>
-      );
-    }
-    return <LoginPage />;
-  };
-
-  const renderPrivateRoute = (Component: React.ComponentType<any>, props?: any) => {
-    if (isAuthenticated) {
-      return <Component {...props} />;
-    }
-    return <LoginPage />;
-  };
-
   return (
     <div className="min-h-screen bg-background">
       <Switch>
@@ -143,37 +182,15 @@ const AppRoutes = () => {
         </Route>
 
         <Route path="/onboarding" component={OnboardingRoute} />
-
-        <Route path="/">
-          {() => renderPrivateRoute(DashboardPage)}
-        </Route>
-
-        <Route path="/dashboard">
-          {() => renderPrivateRoute(DashboardPage)}
-        </Route>
-
-        <Route path="/settings/onboarding">
-          {() => renderPrivateRoute(SettingsOnboardingPage)}
-        </Route>
-
-        <Route path="/settings">
-          {() => renderPrivateRoute(() => (
-            <DashboardLayout>
-              <SettingsFormNew />
-            </DashboardLayout>
-          ))}
-        </Route>
-
-        <Route path="/condiciones">
-          {() => renderPrivateRoute(ConditionsPage)}
-        </Route>
-
-        <Route path="/pacientes">
-          {() => renderPrivateRoute(PatientsPage)}
-        </Route>
-
+        <Route path="/" component={PrivateDashboardPage} />
+        <Route path="/dashboard" component={PrivateDashboardPage} />
+        <Route path="/settings/onboarding" component={PrivateSettingsOnboardingPage} />
+        <Route path="/settings" component={PrivateSettingsPage} />
+        <Route path="/condiciones" component={PrivateConditionsPage} />
+        <Route path="/pacientes" component={PrivatePatientsPage} />
+        
         <Route path="/paciente/:id">
-          {(params) => renderPrivateRoute(PatientDetailPage, {params})}
+          {(params) => <PrivatePatientDetailRoute params={params} />}
         </Route>
 
         <Route component={NotFound} />
