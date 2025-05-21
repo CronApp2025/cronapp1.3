@@ -42,27 +42,16 @@ export function SettingsFormNew() {
     try {
       setIsLoading(true);
       
-      // Obtener el token de autenticación
-      const token = localStorage.getItem("token");
-      if (!token) {
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "No se encontró el token de autenticación. Por favor, inicia sesión nuevamente."
-        });
-        setIsLoading(false);
-        return;
-      }
-      
       // Realizar la solicitud directamente con fetch
+      // Ahora usamos cookies para la autenticación en lugar de token en localStorage
       console.log("Enviando datos de configuración:", formData);
       
       const response = await fetch(`${window.location.origin}/api/settings`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
+        credentials: 'include', // Incluir cookies en la solicitud
         body: JSON.stringify(formData)
       });
       
