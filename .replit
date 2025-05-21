@@ -40,7 +40,7 @@ args = "Build Client"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Simple Server"
+args = "Web Server"
 
 [[workflows.workflow]]
 name = "Start App"
@@ -68,7 +68,7 @@ task = "shell.exec"
 args = "cd client && npm run build && echo \"Build completado\""
 
 [[workflows.workflow]]
-name = "Simple Server"
+name = "Web Server"
 author = "agent"
 
 [[workflows.workflow.tasks]]
