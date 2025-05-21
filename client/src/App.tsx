@@ -1,16 +1,15 @@
-import { Switch, Route, useLocation } from "wouter";
+import React, { useEffect, useState } from "react";
+import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
-import { useOnboarding } from "@/hooks/use-onboarding";
 import { GoogleOAuthProvider } from '@react-oauth/google';
-import { useEffect, useState, memo } from "react";
-import NotFound from "@/pages/not-found";
+import { apiRequest } from "@/lib/queryClient";
 import { LoadingScreen } from "@/components/ui/loading-screen";
+import NotFound from "@/pages/not-found";
 import { SettingsFormNew } from "@/components/dashboard/settings/settings-form-new";
 import SettingsOnboardingPage from "@/pages/SettingsOnboardingPage";
-import { apiRequest } from "@/lib/queryClient";
 
 // Importar componentes
 import { LoginForm } from "@/components/auth/login-form";
@@ -26,7 +25,9 @@ import { ClinicalEducation } from "@/components/dashboard/ClinicalEducation";
 import { PatientsList } from "@/components/dashboard/PatientsList";
 import { PatientDetail } from "@/components/dashboard/PatientDetail";
 
-// Componentes de página
+
+
+// Definir componentes de página básicos
 const LoginPage = () => (
   <div className="flex items-center justify-center min-h-screen p-4 bg-neutral">
     <div className="w-full max-w-md mx-auto">
@@ -59,34 +60,27 @@ const ResetPasswordPage = ({ params }: { params: { token: string } }) => (
   </div>
 );
 
-const DashboardPage = () => {
-  const { isAuthenticated } = useAuth();
-  const { hasCompletedOnboarding, isCheckingOnboardingStatus } = useOnboarding();
-  const [, navigate] = useLocation();
+// Componente de Onboarding
+const OnboardingPage = () => (
+  <div className="flex items-center justify-center min-h-screen p-4 bg-gray-100">
+    <OnboardingFormNew />
+  </div>
+);
 
-  useEffect(() => {
-    if (isAuthenticated && !isCheckingOnboardingStatus && !hasCompletedOnboarding) {
-      navigate('/onboarding');
-    }
-  }, [isAuthenticated, isCheckingOnboardingStatus, hasCompletedOnboarding, navigate]);
-
-  if (isCheckingOnboardingStatus) {
-    return <LoadingScreen />;
-  }
-
-  return (
-    <DashboardLayout>
-      <div className="space-y-6">
-        <PatientProfile />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <RiskMonitoring />
-          <ClinicalEducation />
-        </div>
+// Dashboard
+const DashboardPage = () => (
+  <DashboardLayout>
+    <div className="space-y-6">
+      <PatientProfile />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <RiskMonitoring />
+        <ClinicalEducation />
       </div>
-    </DashboardLayout>
-  );
-};
+    </div>
+  </DashboardLayout>
+);
 
+// Otras páginas
 const ConditionsPage = () => (
   <DashboardLayout>
     <ConditionManagement />
@@ -105,104 +99,112 @@ const PatientDetailPage = ({ params }: { params: { id: string } }) => (
   </DashboardLayout>
 );
 
-// Componente para proteger rutas que requieren autenticación
-const PrivateRoute = memo(({ children }: { children: React.ReactNode }) => {
+const SettingsPage = () => (
+  <DashboardLayout>
+    <SettingsFormNew />
+  </DashboardLayout>
+);
+
+// Componente que protege las rutas
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuth();
   
   if (isAuthenticated) {
     return <>{children}</>;
   }
   return <LoginPage />;
-});
+};
 
-// Componente específico para la ruta de onboarding
-const OnboardingRoute = memo(() => {
-  const { isAuthenticated } = useAuth();
-  
-  if (isAuthenticated) {
-    return (
-      <div className="flex items-center justify-center min-h-screen p-4 bg-gray-100">
-        <OnboardingFormNew />
-      </div>
-    );
-  }
-  return <LoginPage />;
-});
-
-// Envolver cada página privada en su propio componente para evitar errores de hooks
-const PrivateDashboardPage = memo(() => (
-  <PrivateRoute>
-    <DashboardPage />
-  </PrivateRoute>
-));
-
-const PrivateSettingsOnboardingPage = memo(() => (
-  <PrivateRoute>
-    <SettingsOnboardingPage />
-  </PrivateRoute>
-));
-
-const PrivateSettingsPage = memo(() => (
-  <PrivateRoute>
-    <DashboardLayout>
-      <SettingsFormNew />
-    </DashboardLayout>
-  </PrivateRoute>
-));
-
-const PrivateConditionsPage = memo(() => (
-  <PrivateRoute>
-    <ConditionsPage />
-  </PrivateRoute>
-));
-
-const PrivatePatientsPage = memo(() => (
-  <PrivateRoute>
-    <PatientsPage />
-  </PrivateRoute>
-));
-
-// Un componente específico para la ruta de detalle de paciente que acepta un parámetro
-const PrivatePatientDetailRoute = memo(({ params }: { params: { id: string } }) => (
-  <PrivateRoute>
-    <PatientDetailPage params={params} />
-  </PrivateRoute>
-));
-
-// Componente principal de rutas
+// Componente de rutas
 const AppRoutes = () => {
   return (
     <div className="min-h-screen bg-background">
-      <Switch>
-        <Route path="/login" component={LoginPage} />
-        <Route path="/register" component={RegisterPage} />
-        <Route path="/forgot-password" component={ForgotPasswordPage} />
-        <Route path="/reset-password/:token">
-          {(params) => <ResetPasswordPage params={params} />}
-        </Route>
-
-        <Route path="/onboarding" component={OnboardingRoute} />
-        <Route path="/" component={PrivateDashboardPage} />
-        <Route path="/dashboard" component={PrivateDashboardPage} />
-        <Route path="/settings/onboarding" component={PrivateSettingsOnboardingPage} />
-        <Route path="/settings" component={PrivateSettingsPage} />
-        <Route path="/condiciones" component={PrivateConditionsPage} />
-        <Route path="/pacientes" component={PrivatePatientsPage} />
-        
-        <Route path="/paciente/:id">
-          {(params) => <PrivatePatientDetailRoute params={params} />}
-        </Route>
-
-        <Route component={NotFound} />
-      </Switch>
-      <Toaster />
+      <AuthProvider>
+        <Switch>
+          <Route path="/login" component={LoginPage} />
+          <Route path="/register" component={RegisterPage} />
+          <Route path="/forgot-password" component={ForgotPasswordPage} />
+          <Route path="/reset-password/:token">
+            {(params) => <ResetPasswordPage params={params} />}
+          </Route>
+          
+          <Route path="/onboarding">
+            {() => (
+              <ProtectedRoute>
+                <OnboardingPage />
+              </ProtectedRoute>
+            )}
+          </Route>
+          
+          <Route path="/">
+            {() => (
+              <ProtectedRoute>
+                <DashboardPage />
+              </ProtectedRoute>
+            )}
+          </Route>
+          
+          <Route path="/dashboard">
+            {() => (
+              <ProtectedRoute>
+                <DashboardPage />
+              </ProtectedRoute>
+            )}
+          </Route>
+          
+          <Route path="/settings/onboarding">
+            {() => (
+              <ProtectedRoute>
+                <SettingsOnboardingPage />
+              </ProtectedRoute>
+            )}
+          </Route>
+          
+          <Route path="/settings">
+            {() => (
+              <ProtectedRoute>
+                <SettingsPage />
+              </ProtectedRoute>
+            )}
+          </Route>
+          
+          <Route path="/condiciones">
+            {() => (
+              <ProtectedRoute>
+                <ConditionsPage />
+              </ProtectedRoute>
+            )}
+          </Route>
+          
+          <Route path="/pacientes">
+            {() => (
+              <ProtectedRoute>
+                <PatientsPage />
+              </ProtectedRoute>
+            )}
+          </Route>
+          
+          <Route path="/paciente/:id">
+            {(params) => (
+              <ProtectedRoute>
+                <PatientDetailPage params={params} />
+              </ProtectedRoute>
+            )}
+          </Route>
+          
+          <Route>
+            {() => <NotFound />}
+          </Route>
+        </Switch>
+        <Toaster />
+      </AuthProvider>
     </div>
   );
 };
 
-const AppWithProviders = () => {
+// Componente principal de la aplicación con todos los proveedores
+export default function App() {
   const [googleAuthAvailable, setGoogleAuthAvailable] = useState(false);
-  // Definir clientId como variable para evitar recreaciones innecesarias
   const clientId = "759420300435-1978tfdvh2ugducrmcd0crspn25u1a31.apps.googleusercontent.com";
 
   useEffect(() => {
@@ -211,7 +213,6 @@ const AppWithProviders = () => {
     const checkAuthMethods = async () => {
       try {
         const response = await apiRequest("GET", "/api/auth/auth-methods", null);
-        // Solo actualizar el estado si el componente sigue montado
         if (isMounted && response.ok) {
           const data = await response.json();
           setGoogleAuthAvailable(data.success && data.data?.google_auth_available);
@@ -226,24 +227,16 @@ const AppWithProviders = () => {
     
     checkAuthMethods();
     
-    // Función de limpieza para evitar actualizaciones de estado en componentes desmontados
     return () => {
       isMounted = false;
     };
   }, []);
 
-  // Crear elementos separados para evitar recreaciones y problemas de memoria
   return (
     <GoogleOAuthProvider clientId={clientId}>
       <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <AppRoutes />
-        </AuthProvider>
+        <AppRoutes />
       </QueryClientProvider>
     </GoogleOAuthProvider>
   );
-};
-
-export default function App() {
-  return <AppWithProviders />;
 }
