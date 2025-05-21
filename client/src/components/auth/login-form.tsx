@@ -83,8 +83,8 @@ export function LoginForm() {
     }
   }
 
-  // Solo definir googleLogin si la autenticación de Google está disponible y useGoogleLogin existe
-  const googleLogin = googleAuthAvailable && useGoogleLogin ? useGoogleLogin({
+  // Crear una referencia al objeto googleLogin
+  const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse: any) => {
       try {
         const userInfoResponse = await fetch(
@@ -121,7 +121,7 @@ export function LoginForm() {
       console.log("Ventana de autenticación de Google cerrada por el usuario");
       setIsGoogleLoading(false);
     },
-  }) : null;
+  });
 
   useEffect(() => {
     return () => {
@@ -132,7 +132,7 @@ export function LoginForm() {
   }, [isGoogleLoading]);
 
   const handleGoogleLogin = () => {
-    if (!googleLogin) {
+    if (!googleAuthAvailable) {
       console.error("Google login no está disponible");
       return;
     }
@@ -141,6 +141,7 @@ export function LoginForm() {
       setIsGoogleLoading(true);
       googleLogin();
 
+      // Establecer un timeout de seguridad para restablecer el estado de carga
       setTimeout(() => {
         setIsGoogleLoading(false);
       }, 60000);
