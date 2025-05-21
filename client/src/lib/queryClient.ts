@@ -47,6 +47,7 @@ export async function apiRequest(
   const res = await fetch(fullUrl, {
     method,
     headers,
+    credentials: 'include',
     body: data ? JSON.stringify(data) : undefined,
     credentials: "include",
   });

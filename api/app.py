@@ -23,10 +23,13 @@ logging.basicConfig(
 
 app = Flask(__name__)
 app.config['JWT_TOKEN_LOCATION'] = ['cookies']
+app.config['JWT_ACCESS_COOKIE_NAME'] = 'access_token_cookie'
+app.config['JWT_REFRESH_COOKIE_NAME'] = 'refresh_token_cookie'
 app.config['JWT_COOKIE_SECURE'] = False  # Set to True in production
 app.config['JWT_COOKIE_CSRF_PROTECT'] = True
 app.config['JWT_ACCESS_COOKIE_PATH'] = '/'
 app.config['JWT_COOKIE_SAMESITE'] = 'Lax'
+app.config['JWT_COOKIE_DOMAIN'] = None
 # Configuración más específica de CORS para permitir solicitudes desde cualquier origen
 # En producción, reemplazar * por los dominios específicos permitidos
 cors_config = {
