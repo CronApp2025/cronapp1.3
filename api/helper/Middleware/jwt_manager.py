@@ -10,9 +10,14 @@ def jwt_required_custom(optional=False, refresh=False):
         def decorator(*args, **kwargs):
             try:
                 verify_jwt_in_request(optional=optional, refresh=refresh)
-                jwt = get_jwt()
-                
-                if not jwt:
+                try:
+                    jwt = get_jwt()
+                except Exception:
+                    if optional:
+                        return fn(*args, **kwargs)
+                    return jsonify({"msg": "Token no proporcionado"}), 401
+                    
+                if not jwt and not optional:
                     return jsonify({"msg": "Token no proporcionado"}), 401
                 
                 # Verificar si la sesión está en la denylist (invalidada)

@@ -186,17 +186,13 @@ const AppWithProviders = () => {
   }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        {googleAuthAvailable ? (
-          <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-            <AppRoutes />
-          </GoogleOAuthProvider>
-        ) : (
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
           <AppRoutes />
-        )}
-      </AuthProvider>
-    </QueryClientProvider>
+        </AuthProvider>
+      </QueryClientProvider>
+    </GoogleOAuthProvider>
   );
 };
 
