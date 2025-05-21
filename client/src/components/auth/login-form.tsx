@@ -40,7 +40,7 @@ export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [googleAuthAvailable, setGoogleAuthAvailable] = useState(false);
-  
+
   // Verificar si la autenticación de Google está disponible
   useEffect(() => {
     const checkGoogleAuthStatus = async () => {
@@ -57,7 +57,7 @@ export function LoginForm() {
         setGoogleAuthAvailable(false);
       }
     };
-    
+
     checkGoogleAuthStatus();
   }, []);
 
@@ -136,7 +136,7 @@ export function LoginForm() {
       console.error("Google login no está disponible");
       return;
     }
-    
+
     try {
       setIsGoogleLoading(true);
       googleLogin();
