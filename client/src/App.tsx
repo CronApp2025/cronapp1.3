@@ -109,6 +109,22 @@ const AppRoutes = () => {
   const auth = useAuth();
   const isAuthenticated = auth.isAuthenticated;
 
+  // Extraemos la lógica de renderización a un componente separado
+  // para evitar problemas con los hooks condicionalmente
+  const OnboardingRoute = () => {
+    // Este hook se llamará siempre, evitando el error #310
+    const { isAuthenticated } = useAuth();
+    
+    if (isAuthenticated) {
+      return (
+        <div className="flex items-center justify-center min-h-screen p-4 bg-gray-100">
+          <OnboardingFormNew />
+        </div>
+      );
+    }
+    return <LoginPage />;
+  };
+
   const renderPrivateRoute = (Component: React.ComponentType<any>, props?: any) => {
     if (isAuthenticated) {
       return <Component {...props} />;
@@ -126,13 +142,7 @@ const AppRoutes = () => {
           {(params) => <ResetPasswordPage params={params} />}
         </Route>
 
-        <Route path="/onboarding">
-          {() => isAuthenticated ? (
-            <div className="flex items-center justify-center min-h-screen p-4 bg-gray-100">
-              <OnboardingFormNew />
-            </div>
-          ) : <LoginPage />}
-        </Route>
+        <Route path="/onboarding" component={OnboardingRoute} />
 
         <Route path="/">
           {() => renderPrivateRoute(DashboardPage)}
